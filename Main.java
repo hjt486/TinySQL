@@ -16,7 +16,7 @@ public class Main {
         System.out.println("|====Welcome to the TinySQL Interpreter====|");
         System.out.println("|       CSCE 608 Fall 2018 Project 2       |");
         System.out.println("|      Author: Jiatai Han && Qifan Li      |");
-        
+
         while (control) {
             System.out.println("|==========================================|");
             System.out.println("|-----Please enter the number to begin-----|");
@@ -94,24 +94,3 @@ public class Main {
         }
     }
 }
-/*
-public class Main {
-    public static void main(String[] args){
-        long r=System.currentTimeMillis();
-        try {
-            Executor executor1 = new Executor();
-
-            File file = new File("./src/test.txt");
-
-            Scanner scanner = new Scanner(new FileInputStream(file));
-            int i = 0;
-            while (scanner.hasNextLine()) {
-                i++;
-                executor1.execute(scanner.nextLine());
-            }
-            System.out.println(System.currentTimeMillis()-r+"ms");
-        }catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-}*/
