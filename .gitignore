@@ -1,6 +1,7 @@
 out
 TinySQL.iml
 .DS_Store
+.idea
 
 # Compiled class file
 *.class
