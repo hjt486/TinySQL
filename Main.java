@@ -1,13 +1,11 @@
 import java.io.*;
 import java.util.*;
 import storageManager.*;
-
 /*
 Jiatai Han & Qifan Li
 11/2018
 
 Main Interface
-*/
 
 public class test {
     public static void main(String[] args){
@@ -86,6 +84,26 @@ public class test {
                 default:
                     continue;
             }
+        }
+    }
+}*/
+public class Main {
+    public static void main(String[] args){
+        long r=System.currentTimeMillis();
+        try {
+            Executor executor1 = new Executor();
+
+            File file = new File("./src/test.txt");
+
+            Scanner scanner = new Scanner(new FileInputStream(file));
+            int i = 0;
+            while (scanner.hasNextLine()) {
+                i++;
+                executor1.execute(scanner.nextLine());
+            }
+            System.out.println(System.currentTimeMillis()-r+"ms");
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 }

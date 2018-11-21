@@ -5,9 +5,7 @@ import storageManager.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by lsr on 2016/12/3.
- */
+
 public class Heap {
     List<String> compare_field;
     int max_size;
@@ -22,10 +20,10 @@ public class Heap {
     }
 
     public void insert(Tuple_with_position tuple){
-            size++;
-            heap[size-1] = tuple;
-            int current = size-1;
-            while(parent(current)>=0 && compare_tuple(heap[current].tuple,heap[parent(current)].tuple)<0){
+            size = size + 1;
+            heap[size - 1] = tuple;
+            int current = size - 1;
+            while(parent(current) >= 0 && compare_tuple(heap[current].tuple,heap[parent(current)].tuple) < 0){
                     swap(current,parent(current));
                     current = parent(current);
             }
@@ -41,40 +39,39 @@ public class Heap {
             System.out.print("empty");
             return null;
         }
-
-        swap(0,size-1);
-        size--;
+        swap(0,size - 1);
+        size = size - 1;
         if(size == 0){
             return heap[0];
         }
         int current = 0;
-        int small;
+        int small = 0;
         while(!isLeaf(current)){
             small = rightchild(current);
-            if(small<size) {
-                if (compare_tuple(heap[small].tuple, heap[small - 1].tuple) > 0) {
+            if(small < size) {
+                if(compare_tuple(heap[small].tuple, heap[small - 1].tuple) > 0) {
                     small = small - 1;
-                    if (compare_tuple(heap[current].tuple, heap[small].tuple) > 0) {
+                    if(compare_tuple(heap[current].tuple, heap[small].tuple) > 0) {
                         swap(current, small);
                         current = small;
-                    } else {
+                    }else{
                         break;
                     }
                 } else{
-                    if (compare_tuple(heap[current].tuple, heap[small].tuple) > 0) {
+                    if(compare_tuple(heap[current].tuple, heap[small].tuple) > 0) {
                         swap(current, small);
                         current = small;
-                    } else {
+                    }else{
                         break;
                     }
 
                 }
             }else{
                 small = small -1;
-                if (compare_tuple(heap[current].tuple, heap[small].tuple) > 0) {
+                if(compare_tuple(heap[current].tuple, heap[small].tuple) > 0) {
                     swap(current, small);
                     current = small;
-                } else {
+                }else{
                     break;
                 }
             }
@@ -83,7 +80,7 @@ public class Heap {
     }
 
     private boolean isLeaf(int pos){
-        if(pos>=size/2 && pos<size){
+        if(pos >= size/2 && pos < size){
             return true;
         }else{
             return false;
@@ -97,44 +94,43 @@ public class Heap {
     }
 
     private int leftchild(int pos){
-        return (pos+1)*2-1;
+        return (pos + 1) * 2 - 1;
     }
 
     private int rightchild(int pos){
-        return (pos+1)*2;
+        return (pos + 1) * 2;
     }
 
     private int parent(int pos){
-        if(pos==0){
+        if(pos == 0){
             return -1;
         }else{
-            return (pos-1)/2;
+            return (pos - 1)/2;
         }
     }
 
     public int compare_tuple(Tuple t1, Tuple t2){
-        if(compare_field.size()==1){
+        if(compare_field.size() == 1){
 //            order by
             Field field1 = t1.getField(compare_field.get(0));
             Field field2 = t2.getField(compare_field.get(0));
             if(field1.type == FieldType.INT){
-                return field1.integer-field2.integer;
+                return field1.integer - field2.integer;
             }else{
                 return field1.str.compareTo(field2.str);
             }
         }else{
-
-            for(int i=0; i<compare_field.size();i++){
+            for(int i = 0; i < compare_field.size(); i++){
                 Field field1 = t1.getField(compare_field.get(i));
                 Field field2 = t2.getField(compare_field.get(i));
                 if(field1.type == FieldType.INT){
-                    int res = field1.integer-field2.integer;
-                    if(res!=0){
+                    int res = field1.integer - field2.integer;
+                    if(res != 0){
                         return res;
                     }
                 }else{
                     int res =  field1.str.compareTo(field2.str);
-                    if(res!=0){
+                    if(res != 0){
                         return res;
                     }
                 }
@@ -142,6 +138,4 @@ public class Heap {
             return 0;
         }
     }
-
-
 }
