@@ -41,10 +41,8 @@ public class Main {
                         Scanner scanner = new Scanner(new FileInputStream(file));
                         // Create executor and read from file and execute line by line
                         Executor run = new Executor();
-                        int i = 0;
                         long time_begin = System.currentTimeMillis();
                         while (scanner.hasNextLine()) {
-                            i++;
                             run.execute(scanner.nextLine());
                         }
                         System.out.println("Time consumed:");
@@ -61,6 +59,7 @@ public class Main {
                     System.out.println("|============Enter Query by Line===========|");
                     System.out.println("|==========================================|");
                     System.out.println("|===========Enter \"exit\" to quit===========|");
+                    Executor run = new Executor();
                     while (true) {
                         System.out.print("TinySQL>");
                         Scanner scan = new Scanner(System.in);
@@ -72,12 +71,13 @@ public class Main {
                             query = scan.next();
                         }
                         System.out.println(query);
+
                         if (query.equalsIgnoreCase("exit")) {
+                            control = false;
                             break;
-                        }
-                        else {
-                            Executor executor = new Executor();
-                            executor.execute(query);
+                        } else {
+                            //Executor run = new Executor();
+                            run.execute(query);
                         }
                     }
                     break;
