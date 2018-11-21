@@ -1,29 +1,32 @@
 import java.io.*;
 import java.util.*;
 import storageManager.*;
+
 /*
 Jiatai Han & Qifan Li
 11/2018
 
 Main Interface
-
-public class test {
+*/
+public class Main {
     public static void main(String[] args){
 
         Scanner select = new Scanner(System.in);
+        boolean control = true;
         System.out.println("|====Welcome to the TinySQL Interpreter====|");
         System.out.println("|       CSCE 608 Fall 2018 Project 2       |");
         System.out.println("|      Author: Jiatai Han && Qifan Li      |");
-        System.out.println("|==========================================|");
-        System.out.println("|-----Please enter the number to begin-----|");
-        System.out.println("|1. Input from a text file                 |");
-        System.out.println("|2. Enter the query manually               |");
-        System.out.println("|3. Quit                                   |");
-        System.out.println("|==========================================|");
-        while (true) {
+        
+        while (control) {
+            System.out.println("|==========================================|");
+            System.out.println("|-----Please enter the number to begin-----|");
+            System.out.println("|1. Input from a text file                 |");
+            System.out.println("|2. Enter the query manually               |");
+            System.out.println("|3. Quit                                   |");
+            System.out.println("|==========================================|");
             System.out.print("Please enter the number from the list: ");
-            String level1 = select.next();
-            switch (level1) {
+            String level = select.nextLine();
+            switch (level) {
                 case "1":
                     try {
                         System.out.println("|==========================================|");
@@ -33,16 +36,16 @@ public class test {
                         System.out.print("Then enter the file name (with extension) here:");
                         //  Begin read file name
                         Scanner input = new Scanner(System.in);
-                        String file_name = input.next();
+                        String file_name = input.nextLine();
                         File file = new File(file_name);
                         Scanner scanner = new Scanner(new FileInputStream(file));
                         // Create executor and read from file and execute line by line
-                        Executor executor = new Executor();
+                        Executor run = new Executor();
                         int i = 0;
                         long time_begin = System.currentTimeMillis();
                         while (scanner.hasNextLine()) {
                             i++;
-                            executor.execute(scanner.nextLine());
+                            run.execute(scanner.nextLine());
                         }
                         System.out.println("Time consumed:");
                         System.out.println(System.currentTimeMillis()- time_begin +"ms");
@@ -51,7 +54,8 @@ public class test {
                     catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-                    continue;
+                    //control = false;
+                    break;
                 case "2":
                     System.out.println("|==========================================|");
                     System.out.println("|============Enter Query by Line===========|");
@@ -76,17 +80,21 @@ public class test {
                             executor.execute(query);
                         }
                     }
-                    continue;
+                    break;
                 case "3":
                     System.out.println("You selected \"Quit\".");
                     System.out.println("Thank You and See You Soon!");
-                    return;
+                    control = false;
+                    break;
                 default:
-                    continue;
+                    System.out.println("Unrecognizable choice. Choose again:");
+                    break;
+                    //level = select.nextLine();
             }
         }
     }
-}*/
+}
+/*
 public class Main {
     public static void main(String[] args){
         long r=System.currentTimeMillis();
@@ -106,4 +114,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-}
+}*/
