@@ -145,7 +145,7 @@ public class Executor {
 		Relation relation = schema_manager.getRelation(table_name);
 		int table_blocks_count = relation.getNumOfBlocks();
 		if(table_blocks_count == 0){
-			System.out.println("Table \"" + table_name "\" is empty!");
+			System.out.println("Table \"" + table_name + "\" is empty!");
 		}
 		int scan_times;
 		if((table_blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY)!=0){
