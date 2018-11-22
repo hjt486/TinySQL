@@ -76,6 +76,8 @@ public class Parser {
                                 Argument argument = new Argument(field[1],field[0]);
                                 arg.add(argument);
                             }else{
+                                System.out.println("Wrong input type for column \"”"+ field[0] +"\",");
+                                System.out.println("Only INT or STR20 is allowed!");
                                 return false;
                             }
                         }
@@ -247,7 +249,6 @@ public class Parser {
 
         } catch (Exception e) {
 //            e.printStackTrace();
-            System.out.print("Syntax Wrong Format!!!");
             return false;
         }
 
