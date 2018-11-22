@@ -3,153 +3,163 @@ import java.util.regex.Pattern;
 import storageManager.*;
 
 public class Executor {
-	private Parser parse;
 	public MainMemory mem;
 	public Disk disk;
 	public SchemaManager schema_manager;
+	private Parser parse;
 
 	public Executor(){
-		parse = new Parser();
 		mem = new MainMemory();
 		disk = new Disk();
 		schema_manager = new SchemaManager(mem, disk);
 	    disk.resetDiskIOs();
 	    disk.resetDiskTimer();
+		parse = new Parser();
 	}
-	public void execute(String stm){
-		if(parse.syntax(stm)){
-		   if(parse.key_word.get(0).equalsIgnoreCase("create")){
-			   create_execute();
-		   }
-		   else if(parse.key_word.get(0).equalsIgnoreCase("drop")){
-			   drop_execute();
-		   }
-		   else if(parse.key_word.get(0).equalsIgnoreCase("insert")){
-			   insert_execute();
-			   if(schema_manager.relationExists("return_relation")){
-			   	   schema_manager.deleteRelation("return_relation");
-			   }//drop a table
-			   if(schema_manager.relationExists("new_relation")){
-				   schema_manager.deleteRelation("new_relation");
-			   }
-			}
-		   else if(parse.key_word.get(0).equalsIgnoreCase("delete")){
-			   delete_execute();
-		   }
-		   else if(parse.key_word.get(0).equalsIgnoreCase("select")){
-			   Relation test=select_execute();
-			   System.out.println(test);
-			   if(test.getRelationName().contains(",")) {
-				   schema_manager.deleteRelation(test.getRelationName());
-			   }
-			   if(schema_manager.relationExists("new_relation")){
-				   schema_manager.deleteRelation("new_relation");
-			   }
-			   if(schema_manager.relationExists("return_relation")){
-			     schema_manager.deleteRelation("return_relation");
+	public void execute(String query){
+		if (parse.syntax(query) == true){
+			switch (parse.key_word.get(0).toUpperCase()) {
+				case "CREATE":
+					create();
+					break;
+				case "DROP":
+					drop();
+					break;
+				case "INSERT":
+					insert();
+					if (schema_manager.relationExists("return_relation")) {
+						schema_manager.deleteRelation("return_relation");
+					}//drop a table
+					if (schema_manager.relationExists("new_relation")) {
+						schema_manager.deleteRelation("new_relation");
+					}
+					break;
+				case "DELETE":
+					delete();
+					break;
+				case "SELECT":
+					Relation relation = select();
+					System.out.println(relation);
+					if (relation.getRelationName().contains(",")) {
+						schema_manager.deleteRelation(relation.getRelationName());
+					}
+					if (schema_manager.relationExists("new_relation")) {
+						schema_manager.deleteRelation("new_relation");
+					}
+					if (schema_manager.relationExists("return_relation")) {
+						schema_manager.deleteRelation("return_relation");
+					}
+					if (parse.select.distinct) {
+						if (schema_manager.relationExists("order_relation")) {
+							schema_manager.deleteRelation("distinct_relation");
+						}
+					}
+					if (parse.select.order) {
+						if (schema_manager.relationExists("order_relation")) {
+							schema_manager.deleteRelation("order_relation");
+						}
+					}
+					if (schema_manager.relationExists("opr")) {
+						schema_manager.deleteRelation("opr");
+					}
+					break;
+				default:
+					System.out.println("Input Syntax Error! Please Check");
+					break;
 				}
-			   if(parse.select.distinct){
-				   if(schema_manager.relationExists("order_relation")){
-				   schema_manager.deleteRelation("distinct_relation");
-				   }
-			   }
-			   if(parse.select.order){
-				   if(schema_manager.relationExists("order_relation")){
-				   schema_manager.deleteRelation("order_relation");
-				   }
-			   }
-			   if(schema_manager.relationExists("opr")){   
-				     schema_manager.deleteRelation("opr");
-			   }
-		   }
-		   else{
-			   System.out.println("Syntax Error!");
-		   }
+			}
+		else {
+			System.out.println("Input Syntax Error, Please Check!");
 		}
 	}
 	
-	public void create_execute(){
+	public void create(){
 		   ArrayList<String> field_names = new ArrayList<>();
-		   ArrayList<FieldType> field_types=new ArrayList<>();
+		   ArrayList<FieldType> field_types = new ArrayList<>();
 		   for(int i = 0; i < parse.arg.size(); i++){
-			   field_names.add(parse.arg.get(i).name);
-			   if (parse.arg.get(i).type.equalsIgnoreCase("STR20"))
-					 field_types.add(FieldType.STR20);
-			else if (parse.arg.get(i).type.equalsIgnoreCase("INT"))
-					 field_types.add(FieldType.INT);
-			 }
-			Schema schema = new Schema(field_names, field_types);
-			schema_manager.createRelation(parse.t_names.get(0), schema);
-			System.out.println("We created a table: '" + parse.t_names.get(0) + "' with following schema: "+ "\n" + schema);
-	}
-	public void drop_execute(){
-	    String table_name = parse.t_names.get(0);
-		schema_manager.deleteRelation(table_name);//drop a table
-		System.out.println("We deleted table: " + table_name); 
-	}
-	public void insert_execute(){
-		   String to_tablename = parse.t_names.get(0);
-		   if(!schema_manager.relationExists(to_tablename)){
-			   System.out.println("Table doesn't exist!");
+		   		field_names.add(parse.arg.get(i).name);
+		   		switch (parse.arg.get(i).type.toUpperCase()){
+					case "STR20":
+						field_types.add(FieldType.STR20);
+						break;
+					case "INT":
+						field_types.add(FieldType.INT);
+						break;
+					default:
+						System.out.println("Wrong input type!");
+				}
 		   }
-		   Relation relation_toinsert = schema_manager.getRelation(to_tablename);
-		   Tuple tuple=relation_toinsert.createTuple();
-		   Schema relation_schema = relation_toinsert.getSchema();
-		   if(parse.select == null){
-			for(int i = 0; i < tuple.getNumOfFields(); i++){
-				if(relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20)
-             {       
-					String value = parse.values.get(i).replaceAll("\"", "");
-					tuple.setField(parse.arg.get(i).name,value);
-				}
-				else{
-					tuple.setField(parse.arg.get(i).name,Integer.parseInt(parse.values.get(i)));	
-				}
-			}
-			appendTupleToRelation(relation_toinsert,mem,2,tuple);
-//			System.out.println(relation_toinsert);	
-
-			}
-			else if(parse.select != null){
-                    Relation selected_relation = select_execute();
-                    Schema new_temp = new Schema(selected_relation.getSchema());
-                    Relation new_temp_p = schema_manager.createRelation("new_temp", new_temp);
-                    for(int i = 0; i < selected_relation.getNumOfBlocks(); i++){
-                    	selected_relation.getBlock(i, 9);
-                    	new_temp_p.setBlock(i, 9);
-                    }
-    	   			int formerBlocks = relation_toinsert.getNumOfBlocks();
-    	   			for(int i=0; i < new_temp_p.getNumOfBlocks(); i++){
-    	   			       new_temp_p.getBlock(i,9);	
-    	   				   relation_toinsert.setBlock(i+formerBlocks,9);
-    	   			  }
-//    				System.out.println(relation_toinsert);	
-			}
-//			System.out.println(relation_toinsert);	
+		   Schema schema = new Schema(field_names, field_types);
+		   schema_manager.createRelation(parse.t_names.get(0), schema);
+		   System.out.println("Table \"" + parse.t_names.get(0) + "\" is created.");
+		   System.out.println("Schema: ");
+		   System.out.println(schema);
 	}
-	public void delete_execute(){
-//		if(parse.key_word.size()<2){ 
-//                System.out.println("Syntax Error!");
-//		}
-		String t_name = parse.delete.t_names.get(0);
-		Relation deleted_table = schema_manager.getRelation(t_name);
-		int t_blocks=deleted_table.getNumOfBlocks();
-		if(t_blocks == 0){
-			System.out.println("The table is an empty table!");
+
+	public void drop(){
+	    String table = parse.t_names.get(0);
+		schema_manager.deleteRelation(table);
+		System.out.println("Table \"" + table + "\" is deleted.");
+	}
+
+	public void insert(){
+		   String table_name = parse.t_names.get(0);
+		   if (schema_manager.relationExists(table_name) == false){
+			   System.out.println("Table " + table_name + " doesn't exist!");
+		   }
+		   Relation relation = schema_manager.getRelation(table_name);
+		   Tuple tuple=relation.createTuple();
+		   Schema relation_schema = relation.getSchema();
+		   if (parse.select == null){
+				for(int i = 0; i < tuple.getNumOfFields(); i++) {
+					if(relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20) {
+							String value = parse.values.get(i).replaceAll("\"", "");
+							tuple.setField(parse.arg.get(i).name,value);
+					}
+					else{
+							tuple.setField(parse.arg.get(i).name,Integer.parseInt(parse.values.get(i)));
+					}
+				}
+			appendTupleToRelation(relation,mem,2,tuple);
+		   }
+		   else if(parse.select != null){
+				Relation selected_relation = select();
+				Schema schema = new Schema(selected_relation.getSchema());
+				Relation relation_new = schema_manager.createRelation("new_temp", schema);
+				for(int i = 0; i < selected_relation.getNumOfBlocks(); i++){
+					selected_relation.getBlock(i, 9);
+					relation_new.setBlock(i, 9);
+				}
+				int formerBlocks = relation.getNumOfBlocks();
+				for(int i=0; i < relation_new.getNumOfBlocks(); i++){
+					relation_new.getBlock(i,9);
+					relation.setBlock(i+formerBlocks,9);
+				}
+			}
+	}
+
+	////////////////////////////// 11/22
+
+	public void delete(){
+		String table_name = parse.delete.t_names.get(0);
+		Relation relation = schema_manager.getRelation(table_name);
+		int table_blocks_count = relation.getNumOfBlocks();
+		if(table_blocks_count == 0){
+			System.out.println("Table \"" + table_name "\" is empty!");
 		}
 		int scan_times;
-		if((t_blocks%Config.NUM_OF_BLOCKS_IN_MEMORY)!=0){
-		 scan_times = t_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;}
-		else {scan_times = t_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;}
+		if((table_blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY)!=0){
+		 scan_times = table_blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY+1;}
+		else {scan_times = table_blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY;}
 		for(int i = 0; i < scan_times; i++){
 			int num_blocks;
-			if(t_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY <= Config.NUM_OF_BLOCKS_IN_MEMORY){
-				num_blocks = t_blocks - i*Config.NUM_OF_BLOCKS_IN_MEMORY;
+			if(table_blocks_count - i*Config.NUM_OF_BLOCKS_IN_MEMORY <= Config.NUM_OF_BLOCKS_IN_MEMORY){
+				num_blocks = table_blocks_count - i*Config.NUM_OF_BLOCKS_IN_MEMORY;
 			}
 			else{
 				num_blocks = Config.NUM_OF_BLOCKS_IN_MEMORY;
 			}
-			deleted_table.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
+			relation.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
 			ExTreeNode deleteTree = parse.delete.w_clause;
 			for(int j = 0; j < num_blocks; j++){
 				Block test_block = mem.getBlock(j);
@@ -165,11 +175,11 @@ public class Executor {
 					}
 				}
 			}
-			deleted_table.setBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
+			relation.setBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
 		}
 	}
 	
-	public Relation select_execute(){
+	public Relation select(){
 		Relation joined_table;
 		boolean one_pass = true;
 		for(int i = 0; i < parse.select.t_names.size(); i++){
