@@ -17,7 +17,7 @@ public class Executor {
 		parse = new Parser();
 	}
 	public void execute(String query){
-		if (parse.syntax(query) == true){
+		if (parse.syntax(query)){
 			switch (parse.key_word.get(0).toUpperCase()) {
 				case "CREATE":
 					create();
@@ -103,21 +103,25 @@ public class Executor {
 	}
 
 	public void insert(){
-		   String table_name = parse.table_name.get(0);
-		   if (schema_manager.relationExists(table_name) == false){
-			   System.out.println("Table " + table_name + " doesn't exist!");
+		   String table = parse.table_name.get(0);
+		   if (!schema_manager.relationExists(table)){
+			   System.out.println("Table " + table + " doesn't exist!");
 		   }
-		   Relation relation = schema_manager.getRelation(table_name);
+		   Relation relation = schema_manager.getRelation(table);
 		   Tuple tuple = relation.createTuple();
 		   Schema relation_schema = relation.getSchema();
 		   if (parse.select == null){
 				for(int i = 0; i < tuple.getNumOfFields(); i++) {
-					if(relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20) {
+					try {
+						if (relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20) {
 							String value = parse.values.get(i).replaceAll("\"", "");
-							tuple.setField(parse.arg.get(i).name,value);
+							tuple.setField(parse.arg.get(i).name, value);
+						} else {
+							tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));
+						}
 					}
-					else{
-							tuple.setField(parse.arg.get(i).name,Integer.parseInt(parse.values.get(i)));
+					catch (NumberFormatException e) {
+						tuple.setField(parse.arg.get(i).name, 0);
 					}
 				}
 			appendTupleToRelation(relation,mem,2,tuple);
@@ -139,11 +143,11 @@ public class Executor {
 	}
 
 	public void delete(){
-		String table_name = parse.delete.t_names.get(0);
-		Relation relation = schema_manager.getRelation(table_name);
+		String table = parse.delete.t_names.get(0);
+		Relation relation = schema_manager.getRelation(table);
 		int table_blocks_count = relation.getNumOfBlocks();
 		if(table_blocks_count == 0){
-			System.out.println("Table \"" + table_name + "\" is empty!");
+			System.out.println("Table \"" + table + "\" is empty!");
 		}
 		int scan_times;
 		if((table_blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY)!=0){
@@ -734,27 +738,26 @@ public class Executor {
 	
 	
 	private String new_join(String t_1, String t_2, boolean last_one, boolean na_join){
-    	long r=System.currentTimeMillis();
-		ArrayList<ExTreeNode> clauses=new ArrayList<ExTreeNode>();
-	    if(parse.select.w_clause!=null) clauses=parse.select.w_clause.hasSelection();
-		ArrayList<ExTreeNode> suit_clauses=new ArrayList<ExTreeNode>();
-		ArrayList<String> t1_names=new ArrayList<String>();
-		if(t_1.contains(",")) 
-		{ 
-			String[] t1_names_s=t_1.split(",");
-		    for(int i=0;i<t1_names_s.length;i++){
+    	long r = System.currentTimeMillis();
+		ArrayList<ExTreeNode> clauses = new ArrayList<>();
+	    if(parse.select.w_clause != null) clauses = parse.select.w_clause.hasSelection();
+		ArrayList<ExTreeNode> suit_clauses = new ArrayList<>();
+		ArrayList<String> t1_names = new ArrayList<>();
+		if(t_1.contains(",")) {
+			String[] t1_names_s = t_1.split(",");
+		    for(int i = 0; i < t1_names_s.length; i++){
 		    	t1_names.add(t1_names_s[i]);
 		    }
 		}
-		for(int i=0;i<clauses.size();i++){
-			ExTreeNode test_tree=clauses.get(i);
-			boolean add=false;
-			if(t1_names.size()>0){
-			for(int j=0;j<t1_names.size();j++){
-			if((test_tree.left.op.contains(t1_names.get(j))&&test_tree.right.op.contains(t_2))){
-				  add=true;
-			}
-			}
+		for(int i = 0; i < clauses.size(); i++){
+			ExTreeNode test_tree = clauses.get(i);
+			boolean add = false;
+			if(t1_names.size() > 0){
+				for(int j = 0; j < t1_names.size(); j++){
+					if((test_tree.left.op.contains(t1_names.get(j)) && test_tree.right.op.contains(t_2))){
+						add = true;
+					}
+				}
 			}
 			else{
 				if(test_tree.left.op.contains(t_1)&&test_tree.right.op.contains(t_2)){
@@ -775,7 +778,7 @@ public class Executor {
 	                            return natural_join(t_1,t_2,sub_left);
 	                        }
 	                    }
-					add=true;
+					add = true;
 				}
 			}
 			}
