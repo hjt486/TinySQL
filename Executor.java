@@ -90,25 +90,25 @@ public class Executor {
 				}
 		   }
 		   Schema schema = new Schema(field_names, field_types);
-		   schema_manager.createRelation(parse.t_names.get(0), schema);
-		   System.out.println("Table \"" + parse.t_names.get(0) + "\" is created.");
+		   schema_manager.createRelation(parse.table_name.get(0), schema);
+		   System.out.println("Table \"" + parse.table_name.get(0) + "\" is created.");
 		   System.out.println("Schema: ");
 		   System.out.println(schema);
 	}
 
 	public void drop(){
-	    String table = parse.t_names.get(0);
+	    String table = parse.table_name.get(0);
 		schema_manager.deleteRelation(table);
 		System.out.println("Table \"" + table + "\" is deleted.");
 	}
 
 	public void insert(){
-		   String table_name = parse.t_names.get(0);
+		   String table_name = parse.table_name.get(0);
 		   if (schema_manager.relationExists(table_name) == false){
 			   System.out.println("Table " + table_name + " doesn't exist!");
 		   }
 		   Relation relation = schema_manager.getRelation(table_name);
-		   Tuple tuple=relation.createTuple();
+		   Tuple tuple = relation.createTuple();
 		   Schema relation_schema = relation.getSchema();
 		   if (parse.select == null){
 				for(int i = 0; i < tuple.getNumOfFields(); i++) {
@@ -131,14 +131,12 @@ public class Executor {
 					relation_new.setBlock(i, 9);
 				}
 				int formerBlocks = relation.getNumOfBlocks();
-				for(int i=0; i < relation_new.getNumOfBlocks(); i++){
+				for(int i = 0; i < relation_new.getNumOfBlocks(); i++){
 					relation_new.getBlock(i,9);
 					relation.setBlock(i+formerBlocks,9);
 				}
 			}
 	}
-
-	////////////////////////////// 11/22
 
 	public void delete(){
 		String table_name = parse.delete.t_names.get(0);
@@ -242,8 +240,7 @@ public class Executor {
 					}
 				}
 				return joined_table;}
-		}
-		else{
+		}else{
 		String pre_t = parse.select.t_names.get(0);
 		String now_t;
 		boolean last_one = false;
@@ -277,15 +274,13 @@ public class Executor {
 					joined_table = order_second_pass(joined_table, order_attr);
 				}
 			}
-
-
 			return joined_table;
 			
 		}
 		}
 		Schema return_schema;
 		Relation return_relation;
-		if(parse.select.t_names.size()>1){
+		if(parse.select.t_names.size() > 1){
 			ArrayList<String> return_field_names = new ArrayList<String>();
 			ArrayList<FieldType> return_field_types = new ArrayList<FieldType>();
 			if(parse.select.arg.get(0).equalsIgnoreCase("*")){

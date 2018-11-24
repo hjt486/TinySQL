@@ -1,25 +1,23 @@
-import storageManager.Field;
-import storageManager.FieldType;
 
 import java.util.ArrayList;
 
 
 public class Parser {
     ArrayList<String> key_word;
-    String sen;
+    //String sen;
     ArrayList<Argument> arg;
     ArrayList<String> words;
-    ArrayList<String> t_names;
+    ArrayList<String> table_name;
     ArrayList<String> values;
     TreeNode delete;
     TreeNode select;
 
     public Parser() {
-        key_word=new ArrayList<>();
-        sen = null;
+        key_word = new ArrayList<>();
+        //sen = null;
         arg = new ArrayList<>();
         words = new ArrayList<>();
-        t_names = new ArrayList<>();
+        table_name = new ArrayList<>();
         values = new ArrayList<>();
         delete = null;
         select = null;
@@ -27,10 +25,10 @@ public class Parser {
 
     private void reset(){
         key_word = new ArrayList<>();
-        sen = null;
+        //sen = null;
         arg = new ArrayList<>();
         words = new ArrayList<>();
-        t_names = new ArrayList<>();
+        table_name = new ArrayList<>();
         values = new ArrayList<>();
         delete = null;
         select = null;
@@ -46,75 +44,67 @@ public class Parser {
             if(res[0].equalsIgnoreCase("create")){
                 key_word.add("create");
                 if(!res[1].equalsIgnoreCase("table")) {
-                    System.out.print("table!!!");
+                    System.out.print("Illegal Input");
                     return false;
                 }
+                table_name.add(res[2]);
+                StringBuilder sb = new StringBuilder();
+                for(int i = 3; i < res.length; i++){
+                    sb.append(res[i] + " ");
+                }
+                String temp = sb.toString();
 
-                t_names.add(res[2]);
+                if(temp.charAt(0) == '(' && temp.indexOf(")") > 0){
+                    String sub = temp.substring(1,temp.indexOf(")"));
+                    String[] args = sub.split(",");
+                    for(int j = 0; j < args.length; j++){
+                        args[j] = args[j].trim();
+                        String [] field = args[j].split(" ");
+                        if(field.length != 2){
+                            System.out.print("Wrong Arg Format");
+                            return false;
+                        }
 
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for(int i = 3; i < res.length; i++){
-                        stringBuilder.append(res[i] + " ");
-                    }
-                    String temp = stringBuilder.toString();
-
-                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0){
-                        String sub = temp.substring(1,temp.indexOf(")"));
-                        String[] args = sub.split(",");
-                        for(int j = 0; j < args.length; j++){
-                            args[j] = args[j].trim();
-                            String [] field = args[j].split(" ");
-                            if(field.length != 2){
-                                System.out.print("Wrong Arg Format");
-                                return false;
-                            }
-
-                            if(field[1].equalsIgnoreCase("str20")){
-                                Argument argument = new Argument(field[1],field[0]);
-                                arg.add(argument);
-                            }else if(field[1].equalsIgnoreCase("int")){
-                                Argument argument = new Argument(field[1],field[0]);
-                                arg.add(argument);
-                            }else{
-                                System.out.println("Wrong input type for column \"”"+ field[0] +"\",");
-                                System.out.println("Only INT or STR20 is allowed!");
-                                return false;
-                            }
+                        if(field[1].equalsIgnoreCase("str20")){
+                            Argument argument = new Argument(field[1],field[0]);
+                            arg.add(argument);
+                        }else if(field[1].equalsIgnoreCase("int")){
+                            Argument argument = new Argument(field[1],field[0]);
+                            arg.add(argument);
+                        }else{
+                            System.out.println("Wrong input type for column \"”"+ field[0] +"\",");
+                            System.out.println("Only INT or STR20 is allowed!");
+                            return false;
                         }
                     }
+                }
 
             }else if(res[0].equalsIgnoreCase("drop")){
                 key_word.add("drop");
                 if(!res[1].equalsIgnoreCase("table")){
-                    System.out.print("table!!");
+                    System.out.print("Illegal Input");
                     return false;
                 }
-
-                t_names.add(res[2]);
-
+                table_name.add(res[2]);
                 if(res.length>3){
                     return false;
                 }
 
-            }else if(res[0].equalsIgnoreCase("insert")){
+            }else if(res[0].equalsIgnoreCase("insert")) {
                 key_word.add("insert");
                if(!res[1].equalsIgnoreCase("into")){
                    return false;
                }
-
-               t_names.add(res[2]);
-
-                int index = -1;
-                int s_index = -1;
+               table_name.add(res[2]);
+               int index = -1;
+               int s_index = -1;
                for(int i = 3; i < res.length; i++){
                    if(res[i].equalsIgnoreCase("values")){
                        index = i;
                    }
-
                    if(res[i].equalsIgnoreCase("select")){
                        s_index = i;
                    }
-
                }
 
                if(index < 0 && s_index < 0){
@@ -124,12 +114,12 @@ public class Parser {
 
 
                 if(index > 0) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int i = 3; i < index; i++) {
-                        stringBuilder.append(res[i] + " ");
+                    StringBuilder sb = new StringBuilder();
+                    for(int i = 3; i < index; i++) {
+                        sb.append(res[i] + " ");
                     }
-                    String temp = stringBuilder.toString();
-                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                    String temp = sb.toString();
+                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
                         String sub = temp.substring(1, temp.indexOf(")"));
                         String[] args = sub.split(",");
                         for (int j = 0; j < args.length; j++) {
@@ -143,17 +133,17 @@ public class Parser {
                                 arg.add(argument);
                             }
                         }
-                    } else {
+                    }else{
                         return false;
                     }
 
-                    stringBuilder = new StringBuilder();
+                    sb = new StringBuilder();
                     for (int i = index + 1; i < res.length; i++) {
-                        stringBuilder.append(res[i] + " ");
+                        sb.append(res[i] + " ");
                     }
 
-                    temp = stringBuilder.toString();
-                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                    temp = sb.toString();
+                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
                         String sub = temp.substring(1, temp.indexOf(")"));
                         String[] args = sub.split(",");
                         for (int j = 0; j < args.length; j++) {
@@ -166,42 +156,42 @@ public class Parser {
                                 values.add(field[0]);
                             }
                         }
-                    } else {
+                    }else{
                         return false;
                     }
                 }else if(s_index > 0){
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int i = 3; i < s_index; i++) {
-                        stringBuilder.append(res[i] + " ");
+                    StringBuilder sb = new StringBuilder();
+                    for(int i = 3; i < s_index; i++) {
+                        sb.append(res[i] + " ");
                     }
-                    String temp = stringBuilder.toString();
-                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                    String temp = sb.toString();
+                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
                         String sub = temp.substring(1, temp.indexOf(")"));
                         String[] args = sub.split(",");
-                        for (int j = 0; j < args.length; j++) {
+                        for(int j = 0; j < args.length; j++) {
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
-                            if (field.length != 1) {
+                            if(field.length != 1) {
                                 System.out.print("Wrong Arg Format");
                                 return false;
-                            } else {
+                            }else{
                                 Argument argument = new Argument(null, field[0]);
                                 arg.add(argument);
                             }
                         }
-                    } else {
+                    }else{
                         return false;
                     }
 
-                    stringBuilder = new StringBuilder();
+                    sb = new StringBuilder();
                     for(int i = s_index;i<res.length;i++){
-                        stringBuilder.append(res[i]+" ");
+                        sb.append(res[i]+" ");
                     }
 
-                    return selectparse(stringBuilder.toString().split(" "));
+                    return selectparse(sb.toString().split(" "));
                 }
 
-            } else if(res[0].equalsIgnoreCase("delete")){
+            }else if(res[0].equalsIgnoreCase("delete")){
                 key_word.add("delete");
                 delete = new TreeNode();
                 if(!res[1].equalsIgnoreCase("from")){
@@ -209,35 +199,35 @@ public class Parser {
                 }
 
                 int index = -1;
-                for(int i = 0;i < res.length; i++){
+                for(int i = 0; i < res.length; i++){
                     if(res[i].equalsIgnoreCase("where")){
                         index = i;
                         break;
                     }
                 }
 
-                if(index<0){
+                if(index < 0){
                     index = res.length;
                 }else{
                     delete.where = true;
                 }
 
-                StringBuilder stringBuilder1 = new StringBuilder();
-                for(int i=2;i<index;i++){
-                    stringBuilder1.append(res[i]+" ");
+                StringBuilder sb1 = new StringBuilder();
+                for(int i = 2; i < index;i++){
+                    sb1.append(res[i]+" ");
                 }
-                String[] tables = stringBuilder1.toString().split(",");
+                String[] tables = sb1.toString().split(",");
 
-                for(int i=0;i<tables.length;i++){
+                for(int i = 0; i < tables.length; i++){
                     delete.t_names.add(tables[i].trim());
                 }
 
-                if(delete.where==true){
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for(int i=index+1;i<res.length;i++){
-                        stringBuilder.append(res[i]+" ");
+                if(delete.where){
+                    StringBuilder sb = new StringBuilder();
+                    for(int i = index + 1; i < res.length; i++){
+                        sb.append(res[i]+" ");
                     }
-                    delete.w_clause = Builder.generate(stringBuilder.toString());
+                    delete.w_clause = Builder.generate(sb.toString());
                 }
 
             }else if(res[0].equalsIgnoreCase("select")){
@@ -248,7 +238,6 @@ public class Parser {
             }
 
         } catch (Exception e) {
-//            e.printStackTrace();
             return false;
         }
 
@@ -265,7 +254,7 @@ public class Parser {
         int o_index = -1;
         int d_index = -1;
 
-        for(int i=1; i < res.length; i++){
+        for(int i = 1; i < res.length; i++){
             if(res[i].equalsIgnoreCase("distinct")){
                 d_index = i;
             }
@@ -283,58 +272,50 @@ public class Parser {
             }
         }
 
-        if( d_index == 1){
+        if(d_index == 1){
             select.distinct = true;
-        }else if (d_index >=0){
+        }else if(d_index >= 0){
             return false;
         }
 
-        if(w_index>0) {
-            if(o_index>0) {
-                if (w_index > o_index) {
-                    System.out.print("Order can not be front of Where!");
-                    return false;
-                }
-            }
+        if(w_index > 0 && o_index > 0 && w_index > o_index) {
+            System.out.print("Order can not be front of Where!");
+            return false;
         }
 
         if(f_index < 0){
             System.out.print("No from!!");
             return false;
         }
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         if(d_index > 0){
-            for(int i = 2; i<f_index; i++){
-                stringBuilder.append(res[i]+" ");
+            for(int i = 2; i < f_index; i++){
+                sb.append(res[i]+" ");
             }
-            String []arg_s = stringBuilder.toString().split(",");
+            String[]arg_s = sb.toString().split(",");
 
             if(arg_s[0].trim().equalsIgnoreCase("*")){
                 if(arg_s.length == 1) {
-//                    System.out.print("select *");
                     select.arg.add("*");
-                }
-                else{
+                }else{
                     return false;
                 }
-
             }else{
-                for(int i=0; i<arg_s.length; i++){
+                for(int i = 0; i < arg_s.length; i++){
                     arg_s[i] = arg_s[i].trim();
                     select.arg.add(arg_s[i]);
                 }
-//                finished argument
+// finished argument
             }
         }else{
 
-            for(int i=1; i < f_index; i++){
-                stringBuilder.append(res[i]+" ");
+            for(int i = 1; i < f_index; i++){
+                sb.append(res[i]+" ");
             }
-            String []arg_s = stringBuilder.toString().split(",");
+            String []arg_s = sb.toString().split(",");
 
             if(arg_s[0].trim().equalsIgnoreCase("*")){
                 if(arg_s.length == 1) {
-//                    System.out.print("select *");
                     select.arg.add("*");
                 }
                 else{
@@ -342,80 +323,78 @@ public class Parser {
                 }
 
             }else{
-                for(int i=0; i < arg_s.length; i++){
+                for(int i = 0; i < arg_s.length; i++){
                     arg_s[i] = arg_s[i].trim();
                     select.arg.add(arg_s[i]);
                 }
-//                finished argument
+// finished argument
             }
         }
 
-
-
-        stringBuilder = new StringBuilder();
-        if(w_index>0){
+        sb = new StringBuilder();
+        if(w_index > 0){
             select.where = true;
-            for(int i=f_index+1; i<w_index; i++){
-                stringBuilder.append(res[i]+" ");
+            for(int i = f_index + 1; i < w_index; i++){
+                sb.append(res[i]+" ");
             }
-            String[] tables = stringBuilder.toString().split(",");
-            for(int i=0;i<tables.length;i++){
+            String[] tables = sb.toString().split(",");
+            for(int i = 0; i < tables.length; i++){
                 tables[i] = tables[i].trim();
                 select.t_names.add(tables[i]);
             }
 
-            stringBuilder = new StringBuilder();
-            if(o_index>0) {
+            sb = new StringBuilder();
+            if(o_index > 0) {
                 select.order = true;
-                for(int i=w_index + 1; i <o_index;i++){
-                    stringBuilder.append(res[i]+" ");
+                for(int i = w_index + 1; i < o_index; i++){
+                    sb.append(res[i]+" ");
                 }
-                select.w_clause = Builder.generate(stringBuilder.toString());
+                select.w_clause = Builder.generate(sb.toString());
 
                 if(!res[o_index+1].equalsIgnoreCase("by")){
                     System.out.print("order by false!!");
                     return false;
                 }
 
-                stringBuilder = new StringBuilder();
-                for(int i=o_index+2;i<res.length;i++){
-                    stringBuilder.append(res[i]+" ");
+                sb = new StringBuilder();
+                for(int i = o_index+2; i < res.length; i++){
+                    sb.append(res[i]+" ");
                 }
-                select.o_clause = stringBuilder.toString();
+                select.o_clause = sb.toString();
             }else{
                 for(int i = w_index + 1; i < res.length; i++){
-                    stringBuilder.append(res[i]+" ");
+                    sb.append(res[i]+" ");
                 }
-                select.w_clause = Builder.generate(stringBuilder.toString());
+                select.w_clause = Builder.generate(sb.toString());
             }
         }else{
             if(o_index > 0){
-                if(!res[o_index+1].equalsIgnoreCase("by")){
+                if(!res[o_index + 1].equalsIgnoreCase("by")){
                     System.out.print("order by false!!");
                     return false;
                 }
 
                 select.order = true;
-                for(int i = f_index+1; i<o_index; i++){
-                    stringBuilder.append(res[i]+" ");
+                for(int i = f_index + 1; i < o_index; i++){
+                    sb.append(res[i]+" ");
                 }
-                String[] tables = stringBuilder.toString().split(",");
-                for(int i=0; i<tables.length; i++){
+                String[] tables = sb.toString().split(",");
+                for(int i = 0; i < tables.length; i++){
                     tables[i] = tables[i].trim();
                     select.t_names.add(tables[i]);
                 }
 
-                stringBuilder = new StringBuilder();
-                for(int i = o_index+2; i<res.length; i++){
-                    stringBuilder.append(res[i]+" ");
+                sb = new StringBuilder();
+                for(int i = o_index + 2; i < res.length; i++){
+                    sb.append(res[i]+" ");
                 }
-                select.o_clause = stringBuilder.toString();
+                select.o_clause = sb.toString();
             }else{
-                for(int i=f_index+1; i<res.length; i++){
-                    stringBuilder.append(res[i]+" ");
+                for(int i = f_index + 1; i < res.length; i++){
+                    sb.append(res[i]+" ");
                 }
-                String[] tables = stringBuilder.toString().split(",");
-                for(int i=0; i < tables.length; i++){
+                String[] tables = sb.toString().split(",");
+                for(int i = 0; i < tables.length; i++){
                     tables[i] = tables[i].trim();
                     select.t_names.add(tables[i]);
                 }
