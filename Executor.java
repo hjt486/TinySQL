@@ -17,7 +17,7 @@ public class Executor {
 		parse = new Parser();
 	}
 	public void execute(String query){
-		if (parse.syntax(query) == true){
+		if (parse.syntax(query)){
 			switch (parse.key_word.get(0).toUpperCase()) {
 				case "CREATE":
 					create();
@@ -90,31 +90,35 @@ public class Executor {
 				}
 		   }
 		   Schema schema = new Schema(field_names, field_types);
-		   schema_manager.createRelation(parse.t_names.get(0), schema);
-		   System.out.println("Table \"" + parse.t_names.get(0) + "\" is created.");
+		   schema_manager.createRelation(parse.table_name.get(0), schema);
+		   System.out.println("Table \"" + parse.table_name.get(0) + "\" is created.");
 		   System.out.println("Schema: ");
 		   System.out.println(schema);
 	}
 
 	public void drop(){
-	    String table = parse.t_names.get(0);
+	    String table = parse.table_name.get(0);
 		schema_manager.deleteRelation(table);
 		System.out.println("Table \"" + table + "\" is deleted.");
 	}
 
 	public void insert(){
-		   String table_name = parse.t_names.get(0);
-		   if (schema_manager.relationExists(table_name) == false){
-			   System.out.println("Table " + table_name + " doesn't exist!");
+		   String table = parse.table_name.get(0);
+		   if (!schema_manager.relationExists(table)){
+			   System.out.println("Table " + table + " doesn't exist!");
 		   }
-		   Relation relation = schema_manager.getRelation(table_name);
+		   Relation relation = schema_manager.getRelation(table);
 		   Tuple tuple = relation.createTuple();
 		   Schema relation_schema = relation.getSchema();
 		   if (parse.select == null){
 				for(int i = 0; i < tuple.getNumOfFields(); i++) {
-					if(relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20) {
+					try {
+						if (relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20) {
 							String value = parse.values.get(i).replaceAll("\"", "");
-							tuple.setField(parse.arg.get(i).name,value);
+							tuple.setField(parse.arg.get(i).name, value);
+						} else {
+							tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));
+						}
 					}
 					else{
 						if (parse.values.get(i).equalsIgnoreCase("NULL")){
@@ -137,21 +141,19 @@ public class Executor {
 					relation_new.setBlock(i, 9);
 				}
 				int formerBlocks = relation.getNumOfBlocks();
-				for(int i=0; i < relation_new.getNumOfBlocks(); i++){
+				for(int i = 0; i < relation_new.getNumOfBlocks(); i++){
 					relation_new.getBlock(i,9);
 					relation.setBlock(i+formerBlocks,9);
 				}
 			}
 	}
 
-	////////////////////////////// 11/22
-
 	public void delete(){
-		String table_name = parse.delete.t_names.get(0);
-		Relation relation = schema_manager.getRelation(table_name);
+		String table = parse.delete.t_names.get(0);
+		Relation relation = schema_manager.getRelation(table);
 		int table_blocks_count = relation.getNumOfBlocks();
 		if(table_blocks_count == 0){
-			System.out.println("Table \"" + table_name + "\" is empty!");
+			System.out.println("Table \"" + table + "\" is empty!");
 		}
 		int scan_times;
 		if((table_blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY)!=0){
@@ -248,8 +250,7 @@ public class Executor {
 					}
 				}
 				return joined_table;}
-		}
-		else{
+		}else{
 		String pre_t = parse.select.t_names.get(0);
 		String now_t;
 		boolean last_one = false;
@@ -283,15 +284,13 @@ public class Executor {
 					joined_table = order_second_pass(joined_table, order_attr);
 				}
 			}
-
-
 			return joined_table;
 			
 		}
 		}
 		Schema return_schema;
 		Relation return_relation;
-		if(parse.select.t_names.size()>1){
+		if(parse.select.t_names.size() > 1){
 			ArrayList<String> return_field_names = new ArrayList<String>();
 			ArrayList<FieldType> return_field_types = new ArrayList<FieldType>();
 			if(parse.select.arg.get(0).equalsIgnoreCase("*")){
@@ -745,27 +744,26 @@ public class Executor {
 	
 	
 	private String new_join(String t_1, String t_2, boolean last_one, boolean na_join){
-    	long r=System.currentTimeMillis();
-		ArrayList<ExTreeNode> clauses=new ArrayList<ExTreeNode>();
-	    if(parse.select.w_clause!=null) clauses=parse.select.w_clause.hasSelection();
-		ArrayList<ExTreeNode> suit_clauses=new ArrayList<ExTreeNode>();
-		ArrayList<String> t1_names=new ArrayList<String>();
-		if(t_1.contains(",")) 
-		{ 
-			String[] t1_names_s=t_1.split(",");
-		    for(int i=0;i<t1_names_s.length;i++){
+    	long r = System.currentTimeMillis();
+		ArrayList<ExTreeNode> clauses = new ArrayList<>();
+	    if(parse.select.w_clause != null) clauses = parse.select.w_clause.hasSelection();
+		ArrayList<ExTreeNode> suit_clauses = new ArrayList<>();
+		ArrayList<String> t1_names = new ArrayList<>();
+		if(t_1.contains(",")) {
+			String[] t1_names_s = t_1.split(",");
+		    for(int i = 0; i < t1_names_s.length; i++){
 		    	t1_names.add(t1_names_s[i]);
 		    }
 		}
-		for(int i=0;i<clauses.size();i++){
-			ExTreeNode test_tree=clauses.get(i);
-			boolean add=false;
-			if(t1_names.size()>0){
-			for(int j=0;j<t1_names.size();j++){
-			if((test_tree.left.op.contains(t1_names.get(j))&&test_tree.right.op.contains(t_2))){
-				  add=true;
-			}
-			}
+		for(int i = 0; i < clauses.size(); i++){
+			ExTreeNode test_tree = clauses.get(i);
+			boolean add = false;
+			if(t1_names.size() > 0){
+				for(int j = 0; j < t1_names.size(); j++){
+					if((test_tree.left.op.contains(t1_names.get(j)) && test_tree.right.op.contains(t_2))){
+						add = true;
+					}
+				}
 			}
 			else{
 				if(test_tree.left.op.contains(t_1)&&test_tree.right.op.contains(t_2)){
@@ -786,7 +784,7 @@ public class Executor {
 	                            return natural_join(t_1,t_2,sub_left);
 	                        }
 	                    }
-					add=true;
+					add = true;
 				}
 			}
 			}
