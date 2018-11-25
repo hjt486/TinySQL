@@ -33,6 +33,7 @@ public class Main {
                         System.out.println("|==========================================|");
                         System.out.println("Please put the text file in the program folder,");
                         System.out.println("then enter the file name with extension (eg. test.txt)");
+                        System.out.println("or enter \"exit\" to return to main manual.");
                         System.out.print("File>");
                         //  Begin read file name
                         Scanner input = new Scanner(System.in);
