@@ -96,7 +96,8 @@ public class Parser {
                     return false;
                 }
 
-            }else if(res[0].equalsIgnoreCase("insert")){
+            }
+            else if(res[0].equalsIgnoreCase("insert")){
                 key_word.add("insert");
                if(!res[1].equalsIgnoreCase("into")){
                    return false;
