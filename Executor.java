@@ -120,8 +120,14 @@ public class Executor {
 							tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));
 						}
 					}
-					catch (NumberFormatException e) {
-						tuple.setField(parse.arg.get(i).name, 0);
+					else{
+						if (parse.values.get(i).equalsIgnoreCase("NULL")){
+							tuple.setField(parse.arg.get(i).name, null);
+						}
+						else {
+							tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));
+						}
+						//tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));
 					}
 				}
 			appendTupleToRelation(relation,mem,2,tuple);
