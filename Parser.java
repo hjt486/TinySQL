@@ -191,7 +191,8 @@ public class Parser {
                     return selectparse(sb.toString().split(" "));
                 }
 
-            }else if(res[0].equalsIgnoreCase("delete")){
+            }
+            else if(res[0].equalsIgnoreCase("delete")){
                 key_word.add("delete");
                 delete = new TreeNode();
                 if(!res[1].equalsIgnoreCase("from")){

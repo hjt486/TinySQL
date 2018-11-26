@@ -4,9 +4,11 @@ import java.util.Stack;
 public  class Builder {
     public static ExTreeNode generate(String input){
         Stack<String> operator = new Stack<>();
-        Stack<ExTreeNode> tre = new Stack<>();
+        Stack<ExTreeNode> tree = new Stack<>();
         input = input.replaceAll("\\({1}","( ");
         input = input.replaceAll("\\){1}"," )");
+        input = input.replaceAll("not{1}","not");
+        input = input.replaceAll("NOT{1}","not");
         input = input.replaceAll("\\s{1,}"," ");
         String[] words = input.split(" ");
         replace_key(words);
@@ -15,12 +17,12 @@ public  class Builder {
             words[i] = words[i].trim();
             char op = words[i].charAt(0);
             if(op == '+'|| op == '-' || op == '*' || op == '/' || op == '&' || op == '|' || op == '=' || op == '>' || op == '<'){
-                int cur_precedence = precedence(words[i]);
-                while(!operator.isEmpty() && cur_precedence < precedence(operator.peek())){
-                    ExTreeNode right = tre.pop();
-                    ExTreeNode left = tre.pop();
-                    String op1 = operator.pop();
-                    tre.push(new ExTreeNode(left,right,op1));
+                int current_precedence = precedence(words[i]);
+                while(!operator.isEmpty() && current_precedence < precedence(operator.peek())){
+                    ExTreeNode right = tree.pop();
+                    ExTreeNode left = tree.pop();
+                    String operator_temp = operator.pop();
+                    tree.push(new ExTreeNode(left,right,operator_temp));
                 }
                 operator.push(words[i]);
             }
@@ -29,10 +31,10 @@ public  class Builder {
             }
             else if(op == ')'){
                 while(!operator.isEmpty() && !operator.peek().equalsIgnoreCase("(")){
-                    ExTreeNode right = tre.pop();
-                    ExTreeNode left = tre.pop();
+                    ExTreeNode right = tree.pop();
+                    ExTreeNode left = tree.pop();
                     String op1 = operator.pop();
-                    tre.push(new ExTreeNode(left,right,op1));
+                    tree.push(new ExTreeNode(left,right,op1));
                 }
                 if(operator.peek() == null || !operator.peek().equalsIgnoreCase("(")){
                     System.out.print("wrong input");
@@ -41,16 +43,16 @@ public  class Builder {
                 operator.pop();
             }
             else{
-                tre.push(new ExTreeNode(words[i]));
+                tree.push(new ExTreeNode(words[i]));
             }
         }
         while(!operator.isEmpty()){
-            ExTreeNode right = tre.pop();
-            ExTreeNode left = tre.pop();
+            ExTreeNode right = tree.pop();
+            ExTreeNode left = tree.pop();
             String op1 = operator.pop();
-            tre.push(new ExTreeNode(left,right,op1));
+            tree.push(new ExTreeNode(left,right,op1));
         }
-        return tre.pop();
+        return tree.pop();
     }
 
     private static void replace_key(String[] words) {
@@ -64,11 +66,6 @@ public  class Builder {
                 words[i] = "|";
                 continue;
             }
-
-            if(words[i].equalsIgnoreCase("not")){
-                words[i] = "!";
-                continue;
-            }
         }
     }
 
@@ -77,14 +74,13 @@ public  class Builder {
         switch (op){
             case '|': return 0;
             case '&': return 1;
-            case '!': return 2;
-            case '>': return 3;
-            case '<': return 3;
-            case '=': return 3;
-            case '+': return 4;
-            case '-': return 4;
-            case '*': return 5;
-            case '/': return 5;
+            case '>': return 2;
+            case '<': return 2;
+            case '=': return 2;
+            case '+': return 3;
+            case '-': return 3;
+            case '*': return 4;
+            case '/': return 4;
             default: return -1;
         }
     }

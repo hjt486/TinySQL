@@ -923,19 +923,19 @@ public class Executor {
 	}
 
 	private String calculate(ExTreeNode ExTree, Tuple test_tuple){
-		if(ExTree.left==null){
+		if(ExTree.left == null){
 			return ExTree.op;
 		}
-		if(ExTree.right==null){
+		if(ExTree.right ==null){
 			return ExTree.op;
 		}
-		String left="false";
-		String right="false";
+		String left = "false";
+		String right = "false";
 
-		if(ExTree.left!=null){
+		if(ExTree.left != null){
 			left=calculate(ExTree.left, test_tuple);
 		}
-		if(ExTree.right!=null){
+		if(ExTree.right != null){
 			right=calculate(ExTree.right,test_tuple);
 		}
 		if(ExTree.op.equalsIgnoreCase("&")){
