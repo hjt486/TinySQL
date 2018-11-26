@@ -14,6 +14,7 @@ SELECT * FROM course
 DELETE FROM course
 SELECT * FROM course
 DROP TABLE course
+
 CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
 INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
 INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 100, 98, "C")
@@ -92,6 +93,7 @@ SELECT * FROM course WHERE [ exam = 100 OR homework = 100 ] AND project = 100
 SELECT * FROM course WHERE exam + homework = 200
 SELECT * FROM course WHERE ( exam * 30 + homework * 20 + project * 50 ) / 100 = 100
 SELECT * FROM course WHERE grade = "C" AND [ exam > 70 OR project > 70 ] AND NOT ( exam * 30 + homework * 20 + project * 50 ) / 100 < 60
+
 CREATE TABLE course2 (sid INT, exam INT, grade STR20)
 INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, "A")
 INSERT INTO course2 (sid, exam, grade) VALUES (16, 25, "E")

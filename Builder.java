@@ -15,8 +15,8 @@ public  class Builder {
             words[i] = words[i].trim();
             char op = words[i].charAt(0);
             if(op == '+'|| op == '-' || op == '*' || op == '/' || op == '&' || op == '|' || op == '=' || op == '>' || op == '<'){
-                int cur_priority = priority(words[i]);
-                while(!operator.isEmpty() && cur_priority < priority(operator.peek())){
+                int cur_precedence = precedence(words[i]);
+                while(!operator.isEmpty() && cur_precedence < precedence(operator.peek())){
                     ExTreeNode right = tre.pop();
                     ExTreeNode left = tre.pop();
                     String op1 = operator.pop();
@@ -64,21 +64,27 @@ public  class Builder {
                 words[i] = "|";
                 continue;
             }
+
+            if(words[i].equalsIgnoreCase("not")){
+                words[i] = "!";
+                continue;
+            }
         }
     }
 
-    private static int priority(String word){
+    private static int precedence(String word){
         char op = word.charAt(0);
         switch (op){
             case '|': return 0;
             case '&': return 1;
-            case '>': return 2;
-            case '<': return 2;
-            case '=': return 2;
-            case '+': return 3;
-            case '-': return 3;
-            case '*': return 4;
-            case '/': return 4;
+            case '!': return 2;
+            case '>': return 3;
+            case '<': return 3;
+            case '=': return 3;
+            case '+': return 4;
+            case '-': return 4;
+            case '*': return 5;
+            case '/': return 5;
             default: return -1;
         }
     }
