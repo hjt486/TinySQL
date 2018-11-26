@@ -115,8 +115,13 @@ public class Executor {
 			for(int i = 0; i < tuple.getNumOfFields(); i++) {
 				try {
 					if (relation_schema.getFieldType(parse.arg.get(i).name) == FieldType.STR20) {
-						String value = parse.values.get(i).replaceAll("\"", "");
-						tuple.setField(parse.arg.get(i).name, value);
+						String value = "";
+						if (parse.values.get(i).equalsIgnoreCase("NULL")) {
+							tuple.setField(parse.arg.get(i).name, value);
+						} else {
+							value = parse.values.get(i).replaceAll("\"", "");
+							tuple.setField(parse.arg.get(i).name, value);
+						}
 					} else {
 						if (parse.values.get(i).equalsIgnoreCase("NULL")) {
 							tuple.setField(parse.arg.get(i).name, 0);
@@ -164,35 +169,50 @@ public class Executor {
 		if(table_blocks_count == 0){
 			System.out.println("Table \"" + table_name + "\" is empty!");
 		}
-		int scan_times;
-		if((table_blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY)!=0){
-			scan_times = table_blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY+1;}
-		else {scan_times = table_blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY;}
-		for(int i = 0; i < scan_times; i++){
-			int num_blocks;
-			if(table_blocks_count - i*Config.NUM_OF_BLOCKS_IN_MEMORY <= Config.NUM_OF_BLOCKS_IN_MEMORY){
-				num_blocks = table_blocks_count - i*Config.NUM_OF_BLOCKS_IN_MEMORY;
-			}
-			else{
-				num_blocks = Config.NUM_OF_BLOCKS_IN_MEMORY;
-			}
-			relation.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
-			ExTreeNode deleteTree = parse.delete.w_clause;
-			for(int j = 0; j < num_blocks; j++){
-				Block test_block = mem.getBlock(j);
-				if(deleteTree == null){
-					test_block.clear();
-					continue;
+		else{
+			int scan_times;
+			if((table_blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY) != 0){
+				scan_times = table_blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY + 1;}
+			else {scan_times = table_blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY;}
+			for(int i = 0; i < scan_times; i++){
+				int num_blocks;
+				if(table_blocks_count - i * Config.NUM_OF_BLOCKS_IN_MEMORY <= Config.NUM_OF_BLOCKS_IN_MEMORY){
+					num_blocks = table_blocks_count - i * Config.NUM_OF_BLOCKS_IN_MEMORY;
 				}
-				ArrayList<Tuple> test_tuples = test_block.getTuples();
-				if(test_tuples.size() == 0) continue;
-				for(int k = 0; k < test_tuples.size(); k++){
-					if(deleteTree == null||where_judge(deleteTree,test_tuples.get(k))){
-						test_block.invalidateTuple(k);
+				else{
+					num_blocks = Config.NUM_OF_BLOCKS_IN_MEMORY;
+				}
+				relation.getBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
+				ExTreeNode deleteTree = parse.delete.w_clause;
+				ArrayList<Block> blocks = new ArrayList<Block>();
+				for(int j = 0; j < num_blocks; j++){
+					Block test_block = mem.getBlock(j);
+					if(deleteTree != null) {
+						ArrayList<Tuple> test_tuples = test_block.getTuples();
+						if (test_tuples.size() != 0) {
+							for (int k = 0; k < test_tuples.size(); k++) {
+								if (deleteTree == null || where_judge(deleteTree, test_tuples.get(k))) {
+									test_block.invalidateTuple(k);
+								}
+							}
+						}
+						if (test_block.getNumTuples() == 0) {
+							test_block.clear();
+						}
+					}
+					else {
+						test_block.clear();
+					}
+					if(!test_block.isEmpty()){
+						blocks.add(test_block);
 					}
 				}
+				for(int j = 0; j < blocks.size(); j++){
+					mem.setBlock(j, blocks.get(j));
+				}
+				relation.setBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
+				relation.deleteBlocks(blocks.size());
 			}
-			relation.setBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks);
 		}
 	}
 
