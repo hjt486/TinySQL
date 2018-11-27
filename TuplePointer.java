@@ -1,12 +1,12 @@
 import storageManager.Tuple;
 
-public class Tuple_with_position {
+public class TuplePointer {
       Tuple tuple;
       int sublist_pointer;
       int block_pointer;
       int tuple_pointer;
 
-      public Tuple_with_position(Tuple tuple, int sublist_pointer, int block_pointer, int tuple_pointer){
+      public TuplePointer(Tuple tuple, int sublist_pointer, int block_pointer, int tuple_pointer){
     	  this.tuple = tuple;
     	  this.sublist_pointer = sublist_pointer;
     	  this.block_pointer = block_pointer;

@@ -1,41 +1,41 @@
 import java.util.*;
 
-public class ExTreeNode {
-    ExTreeNode left;
-    ExTreeNode right;
+public class NodeGenerator {
+    NodeGenerator left;
+    NodeGenerator right;
     String op;
 
-    public ExTreeNode() {
+    public NodeGenerator() {
         left = null;
         right = null;
         op = null;
     }
 
-    public ExTreeNode(String op) {
+    public NodeGenerator(String op) {
         this.op = op;
         left = null;
         right = null;
     }
 
-    public ExTreeNode(ExTreeNode left, ExTreeNode right, String op) {
+    public NodeGenerator(NodeGenerator left, NodeGenerator right, String op) {
         this.left = left;
         this.right = right;
         this.op = op;
     }
 
-    public ArrayList<ExTreeNode> hasSelection(){
+    public ArrayList<NodeGenerator> hasSelection(){
         if(right == null){
             return null;
         }
 
         if((Character.isDigit(this.left.op.charAt(0)) || Character.isLetter(this.left.op.charAt(0))) && (Character.isDigit(this.right.op.charAt(0)) || Character.isLetter(this.right.op.charAt(0)))){
-            ArrayList<ExTreeNode> res = new ArrayList<>();
+            ArrayList<NodeGenerator> res = new ArrayList<>();
             res.add(this);
             return res;
         }
 
-        ArrayList<ExTreeNode> left_ex = this.left.hasSelection();
-        ArrayList<ExTreeNode> right_ex = this.right.hasSelection();
+        ArrayList<NodeGenerator> left_ex = this.left.hasSelection();
+        ArrayList<NodeGenerator> right_ex = this.right.hasSelection();
 
         if (left_ex != null){
             if(right_ex != null){

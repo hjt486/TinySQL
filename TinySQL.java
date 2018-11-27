@@ -4,9 +4,9 @@ import java.util.*;
 Jiatai Han & Qifan Li
 11/2018
 
-Main Interface
+TinySQL Interface
 */
-public class Main {
+public class TinySQL {
     public static void main(String[] args){
 
         Scanner select = new Scanner(System.in);
@@ -46,7 +46,7 @@ public class Main {
                         } else {
                             File file = new File(file_name);
                             Scanner scanner = new Scanner(new FileInputStream(file));
-                            Executor run = new Executor();
+                            Interpreter run = new Interpreter();
                             long time_begin = System.currentTimeMillis();
                             while (scanner.hasNextLine()) {
                                 run.execute(scanner.nextLine());
@@ -65,8 +65,8 @@ public class Main {
                     System.out.println("|==========================================|");
                     System.out.println("|============Enter Query by Line===========|");
                     System.out.println("|==========================================|");
-                    System.out.println("Enter \"exit\" to quit");
-                    Executor run = new Executor();
+                    System.out.println("Enter \"exit\" to return to main manual.");
+                    Interpreter run = new Interpreter();
                     while (true) {
                         System.out.print("TinySQL>");
                         Scanner scan = new Scanner(System.in);
