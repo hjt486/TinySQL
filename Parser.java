@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class Parser {
     ArrayList<String> key_word;
-    //String sen;
     ArrayList<Attribute> arg;
     ArrayList<String> words;
     ArrayList<String> table_name;
@@ -14,7 +13,6 @@ public class Parser {
 
     public Parser() {
         key_word = new ArrayList<>();
-        //sen = null;
         arg = new ArrayList<>();
         words = new ArrayList<>();
         table_name = new ArrayList<>();
@@ -25,7 +23,6 @@ public class Parser {
 
     private void reset(){
         key_word = new ArrayList<>();
-        //sen = null;
         arg = new ArrayList<>();
         words = new ArrayList<>();
         table_name = new ArrayList<>();
@@ -306,7 +303,6 @@ public class Parser {
                     arg_s[i] = arg_s[i].trim();
                     select.arguments.add(arg_s[i]);
                 }
-// finished argument
             }
         }else{
 
@@ -328,7 +324,6 @@ public class Parser {
                     arg_s[i] = arg_s[i].trim();
                     select.arguments.add(arg_s[i]);
                 }
-// finished argument
             }
         }
 
