@@ -26,8 +26,8 @@ public class Heap {
     }
 
     public void insert(TuplePointer tuple){
-        heap[size - 1] = tuple;    
         size = size + 1;
+        heap[size - 1] = tuple;
         int index_current = size - 1;
         while(parent(index_current) >= 0 && compare_tuple(heap[index_current].tuple,heap[parent(index_current)].tuple) < 0){
             exchange(index_current, parent(index_current));

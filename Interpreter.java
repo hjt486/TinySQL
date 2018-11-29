@@ -26,7 +26,7 @@ public class Interpreter {
 	}
 
 	public void execute(String query){
-		if (parse.syntax(query) == true){
+		if (parse.syntax(query)){
 			switch (parse.key_word.get(0).toUpperCase()) {
 				case "CREATE": create(); break;
 				case "DROP": drop(); break;
@@ -80,7 +80,7 @@ public class Interpreter {
 
 	public void insert(){
 		String table_name = parse.table_name.get(0);
-		if (schema_manager.relationExists(table_name) == false) {System.out.println("Table " + table_name + " doesn't exist!");}
+		if (!schema_manager.relationExists(table_name)) {System.out.println("Table " + table_name + " doesn't exist!");}
 		Relation relation = schema_manager.getRelation(table_name);
 		Tuple tuple = relation.createTuple();
 		Schema relation_schema = relation.getSchema();
@@ -109,7 +109,7 @@ public class Interpreter {
 					break;
 				}
 			}
-			if (field_type_verify == true) {
+			if (field_type_verify) {
 				appendTupleToRelation(relation,mem,2,tuple);
 				System.out.println("A row is inserted.");
 			}
@@ -176,7 +176,7 @@ public class Interpreter {
 					table_joined = two_pass_1st_round(table_joined, table_joined.getSchema().getFieldNames());
 					table_joined = two_pass_2nd_round(table_joined, table_joined.getSchema().getFieldNames());
 				}
-				if (parse.select.order == true){
+				if (parse.select.order){
 					ArrayList<String> attribute_order = new ArrayList<>();
 					String order_by = parse.select.o_clause.trim();
 					attribute_order.add(order_by);
@@ -640,11 +640,6 @@ public class Interpreter {
 							String sub_left = left_op.substring(index_left+1,left_op.length());
 							String sub_right = right_op.substring(index_right+1,right_op.length());
 							if (sub_left.equalsIgnoreCase(sub_right) && na_join){
-//	                            to do natural join
-//	                            tables table1 && table2
-//	                            join Attribute
-//	                            System.out.println("I'm in natural join");
-//	                            sub_left.replaceAll("\.", "");
 								return natural_join(table1,table2,sub_left);
 							}
 						}
@@ -653,7 +648,7 @@ public class Interpreter {
 				}
 			}
 
-			if (add==true){
+			if (add){
 				suit_clauses.add(test_tree);}
 		}
 		Relation relation1=schema_manager.getRelation(table1);
@@ -938,10 +933,8 @@ public class Interpreter {
 		return "null";
 	}
 
+
 	private Relation two_pass_1st_round(Relation relation_returned, ArrayList<String> attribute_names){
-//		 if (relation_returned.getSchema().getFieldNames().contains(attribute_names.get(0))){
-//			 return relation_returned;
-//		 }
 		Heap heap=new Heap(80,attribute_names);
 		int num_blocks=relation_returned.getNumOfBlocks();
 		int scan_count=0;
@@ -1047,10 +1040,6 @@ public class Interpreter {
 	}
 
 	private Relation order_second_pass(Relation relation_returned, ArrayList<String> attributes_order){
-//		 if (relation_returned.getSchema().getFieldNames().contains(attributes_order.get(0))){
-//			 Relation relation_order=schema_manager.createRelation("relation_order", relation_returned.getSchema());
-//			 return relation_returned;
-//		 }
 		Heap heap=new Heap(80,attributes_order);
 		int blocks=relation_returned.getNumOfBlocks();
 		int num_sublists=0;
@@ -1089,39 +1078,26 @@ public class Interpreter {
 				heap.insert(new TuplePointer(mem.getBlock(tp.sublist_pointer).getTuple(0),tp.sublist_pointer,tp.block_pointer,0));
 			}
 		}
-
 		return relation_order;
-
-
-
-
 	}
 
 	private static void appendTupleToRelation(Relation relation_reference, MainMemory mem, int memory_block_index, Tuple tuple) {
 		Block block_reference;
 		if (relation_reference.getNumOfBlocks()==0) {
-//		      System.out.print("The relation is empty" + "\n");
-//		      System.out.print("Get the handle to the memory block " + memory_block_index + " and clear it" + "\n");
 			block_reference=mem.getBlock(memory_block_index);
-			block_reference.clear(); //clear the block
-			block_reference.appendTuple(tuple); // append the tuple
-//		      System.out.print("Write to the first block of the relation" + "\n");
+			block_reference.clear();
+			block_reference.appendTuple(tuple);
 			relation_reference.setBlock(relation_reference.getNumOfBlocks(),memory_block_index);
 		} else {
-//		      System.out.print("Read the last block of the relation into memory block 5:" + "\n");
 			relation_reference.getBlock(relation_reference.getNumOfBlocks()-1,memory_block_index);
 			block_reference=mem.getBlock(memory_block_index);
 
 			if (block_reference.isFull()) {
-//		        System.out.print("(The block is full: Clear the memory block and append the tuple)" + "\n");
-				block_reference.clear(); //clear the block
-				block_reference.appendTuple(tuple); // append the tuple
-//		        System.out.print("Write to a new block at the end of the relation" + "\n");
+				block_reference.clear();
+				block_reference.appendTuple(tuple);
 				relation_reference.setBlock(relation_reference.getNumOfBlocks(),memory_block_index); //write back to the relation
 			} else {
-//		        System.out.print("(The block is not full: Append it directly)" + "\n");
-				block_reference.appendTuple(tuple); // append the tuple
-//		        System.out.print("Write to the last block of the relation" + "\n");
+				block_reference.appendTuple(tuple);
 				relation_reference.setBlock(relation_reference.getNumOfBlocks()-1,memory_block_index); //write back to the relation
 			}
 		}
