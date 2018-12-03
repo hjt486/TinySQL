@@ -44,7 +44,7 @@ public class Parser {
             if(res[0].equalsIgnoreCase("create")){
                 key_word.add("create");
                 if(!res[1].equalsIgnoreCase("table")) {
-                    System.out.print("Illegal Input");
+                    System.out.print("Illegal Input!");
                     return false;
                 }
                 table_name.add(res[2]);
@@ -61,7 +61,7 @@ public class Parser {
                         args[j] = args[j].trim();
                         String [] field = args[j].split(" ");
                         if(field.length != 2){
-                            System.out.print("Wrong Arg Format");
+                            System.out.print("Wrong argument!");
                             return false;
                         }
 
@@ -82,7 +82,7 @@ public class Parser {
             }else if(res[0].equalsIgnoreCase("drop")){
                 key_word.add("drop");
                 if(!res[1].equalsIgnoreCase("table")){
-                    System.out.print("Illegal Input");
+                    System.out.print("Illegal Input!");
                     return false;
                 }
                 table_name.add(res[2]);
@@ -108,7 +108,7 @@ public class Parser {
                }
 
                if(index < 0 && s_index < 0){
-                   System.out.print("no values");
+                   System.out.print("No value!");
                    return false;
                }
 
@@ -126,7 +126,7 @@ public class Parser {
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
                             if (field.length != 1) {
-                                System.out.print("Wrong Arg Format");
+                                System.out.print("Wrong argument!");
                                 return false;
                             } else {
                                 Attribute attribute = new Attribute(null, field[0]);
@@ -150,7 +150,7 @@ public class Parser {
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
                             if (field.length != 1) {
-                                System.out.print("Wrong Arg Format");
+                                System.out.print("Wrong argument!");
                                 return false;
                             } else {
                                 values.add(field[0]);
@@ -172,7 +172,7 @@ public class Parser {
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
                             if(field.length != 1) {
-                                System.out.print("Wrong Arg Format");
+                                System.out.print("Wrong argument!");
                                 return false;
                             }else{
                                 Attribute attribute = new Attribute(null, field[0]);
@@ -280,12 +280,12 @@ public class Parser {
         }
 
         if(w_index > 0 && o_index > 0 && w_index > o_index) {
-            System.out.print("Order can not be front of Where!");
+            System.out.print("Illegal syntax! ORDER can not be in front of WHERE!");
             return false;
         }
 
         if(f_index < 0){
-            System.out.print("No from!!");
+            System.out.print("Missing FROM!");
             return false;
         }
         StringBuilder sb = new StringBuilder();
@@ -328,7 +328,6 @@ public class Parser {
                     arg_s[i] = arg_s[i].trim();
                     select.arguments.add(arg_s[i]);
                 }
-// finished argument
             }
         }
 
@@ -353,7 +352,7 @@ public class Parser {
                 select.where_clause = TreeGenerator.generate(sb.toString());
 
                 if(!res[o_index+1].equalsIgnoreCase("by")){
-                    System.out.print("order by false!!");
+                    System.out.print("Wrong ORDER BY!");
                     return false;
                 }
 
@@ -371,7 +370,7 @@ public class Parser {
         }else{
             if(o_index > 0){
                 if(!res[o_index + 1].equalsIgnoreCase("by")){
-                    System.out.print("order by false!!");
+                    System.out.print("Wrong ORDER BY!");
                     return false;
                 }
 

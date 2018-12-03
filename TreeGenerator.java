@@ -32,7 +32,7 @@ public  class TreeGenerator {
                     tree.push(new NodeGenerator(left,right,op1));
                 }
                 if (operator.peek() == null || !operator.peek().equalsIgnoreCase("(")){
-                    System.out.print("Input query is not in correct syntax!");
+                    System.out.print("Input query is in illegal syntax!");
                     return null;
                 }
                 operator.pop();

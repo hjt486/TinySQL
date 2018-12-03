@@ -50,10 +50,10 @@ public class Interpreter {
 					}
 					if (schema_manager.relationExists("op_temp")) {schema_manager.deleteRelation("op_temp");}
 					break;
-				default: System.out.println("Input Syntax Error! Please Check"); break;
+				default: System.out.println("Illegal input syntax! Please Check!"); break;
 			}
 		}
-		else {System.out.println("Input Syntax Error, Please Check!");}
+		else {System.out.println("Illegal input syntax! Please Check!");}
 	}
 
 	public void create(){
@@ -64,7 +64,7 @@ public class Interpreter {
 			switch (parse.arg.get(i).type.toUpperCase()){
 				case "STR20": attribute_types.add(FieldType.STR20); break;
 				case "INT": attribute_types.add(FieldType.INT); break;
-				default: System.out.println("Wrong input type!");
+				default: System.out.println("Illegal input type!");
 			}
 		}
 		Schema schema = new Schema(attribute_names, attribute_types);
@@ -103,7 +103,7 @@ public class Interpreter {
 					field_type_verify = true;
 				}
 				catch (NumberFormatException e) {
-					System.out.println("Wrong format! Field " + parse.arg.get(i).name + " is of INT type!");
+					System.out.println("Illegal format! Field " + parse.arg.get(i).name + " is of INT type!");
 					System.out.println("You're trying to insert a string value.");
 					field_type_verify = false;
 					break;
@@ -285,7 +285,7 @@ public class Interpreter {
 			relation_returned = schema_manager.createRelation("relation_returned", schema_returned);
 		}
 		int t_blocks = table_joined.getNumOfBlocks();
-		if (t_blocks == 0) {System.out.println("The table is empty!");}
+		if (t_blocks == 0) {System.out.println("Table is empty!");}
 		int scan_count;
 		if ((t_blocks%(Config.NUM_OF_BLOCKS_IN_MEMORY-1))!=0) {scan_count = t_blocks/(Config.NUM_OF_BLOCKS_IN_MEMORY-1)+1;}
 		else {scan_count = t_blocks/(Config.NUM_OF_BLOCKS_IN_MEMORY-1);}
@@ -721,7 +721,7 @@ public class Interpreter {
 	private boolean where_decide(NodeGenerator tree, Tuple tuple){
 		if (tree == null) {return true;}
 		if (calculator(tree, tuple).equalsIgnoreCase("true")) return true;
-		else if (calculator(tree, tuple).equalsIgnoreCase("null")) System.out.println("Syntax error!!!");
+		else if (calculator(tree, tuple).equalsIgnoreCase("null")) System.out.println("Illegal syntax!");
 		return false;
 	}
 

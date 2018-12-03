@@ -38,7 +38,7 @@ public class Heap {
 
     public TuplePointer pop_min(){
         if (heap.length == 0 || size == 0){
-            System.out.println("Heap is empty");
+            System.out.println("Empty heap!!!");
             return null;
         }
         exchange(0,size - 1);
