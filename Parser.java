@@ -361,7 +361,7 @@ public class Parser {
                 for(int i = o_index+2; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
-                select.o_clause = sb.toString();
+                select.order_clause = sb.toString();
             }else{
                 for(int i = w_index + 1; i < res.length; i++){
                     sb.append(res[i]+" ");
@@ -389,7 +389,7 @@ public class Parser {
                 for(int i = o_index + 2; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
-                select.o_clause = sb.toString();
+                select.order_clause = sb.toString();
             }else{
                 for(int i = f_index + 1; i < res.length; i++){
                     sb.append(res[i]+" ");

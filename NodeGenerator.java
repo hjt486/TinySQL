@@ -3,24 +3,24 @@ import java.util.*;
 public class NodeGenerator {
     NodeGenerator left;
     NodeGenerator right;
-    String op;
+    String operator;
 
     public NodeGenerator() {
         left = null;
         right = null;
-        op = null;
+        operator = null;
     }
 
-    public NodeGenerator(String op) {
-        this.op = op;
+    public NodeGenerator(String operator) {
+        this.operator = operator;
         left = null;
         right = null;
     }
 
-    public NodeGenerator(NodeGenerator left, NodeGenerator right, String op) {
+    public NodeGenerator(NodeGenerator left, NodeGenerator right, String operator) {
         this.left = left;
         this.right = right;
-        this.op = op;
+        this.operator = operator;
     }
 
     public ArrayList<NodeGenerator> hasSelection(){
@@ -28,24 +28,20 @@ public class NodeGenerator {
             return null;
         }
 
-        if((Character.isDigit(this.left.op.charAt(0)) || Character.isLetter(this.left.op.charAt(0))) && (Character.isDigit(this.right.op.charAt(0)) || Character.isLetter(this.right.op.charAt(0)))){
-            ArrayList<NodeGenerator> res = new ArrayList<>();
-            res.add(this);
-            return res;
+        if((Character.isDigit(this.left.operator.charAt(0)) || Character.isLetter(this.left.operator.charAt(0))) && (Character.isDigit(this.right.operator.charAt(0)) || Character.isLetter(this.right.operator.charAt(0)))){
+            ArrayList<NodeGenerator> result = new ArrayList<>();
+            result.add(this);
+            return result;
         }
 
-        ArrayList<NodeGenerator> left_ex = this.left.hasSelection();
-        ArrayList<NodeGenerator> right_ex = this.right.hasSelection();
+        ArrayList<NodeGenerator> left = this.left.hasSelection();
+        ArrayList<NodeGenerator> right = this.right.hasSelection();
 
-        if (left_ex != null){
-            if(right_ex != null){
-                left_ex.addAll(right_ex);
-            }
-            return left_ex;
+        if (left != null){
+            if(right != null){left.addAll(right);}
+            return left;
         }else{
-            if(right_ex != null){
-                return right_ex;
-            }
+            if(right != null){return right;}
             return null;
         }
     }

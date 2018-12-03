@@ -97,7 +97,7 @@ public class Interpreter {
 						}
 					}
 					else {
-						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, 0);}
+						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -21321321);}
 						else {tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));}
 					}
 					field_type_verify = true;
@@ -150,7 +150,7 @@ public class Interpreter {
 					Block block = mem.getBlock(j);
 					if (deleteTree != null) {
 						ArrayList<Tuple> tuples_tempe = block.getTuples();
-						if (tuples_tempe.size() != 0) {for (int k = 0; k < tuples_tempe.size(); k++) {if (deleteTree == null || where_judge(deleteTree, tuples_tempe.get(k))){block.invalidateTuple(k);}}}
+						if (tuples_tempe.size() != 0) {for (int k = 0; k < tuples_tempe.size(); k++) {if (deleteTree == null || where_decide(deleteTree, tuples_tempe.get(k))){block.invalidateTuple(k);}}}
 						if (block.getNumTuples() == 0) {block.clear();}
 					}
 					else {block.clear();}
@@ -178,7 +178,7 @@ public class Interpreter {
 				}
 				if (parse.select.order == true){
 					ArrayList<String> attribute_order = new ArrayList<>();
-					String order_by = parse.select.o_clause.trim();
+					String order_by = parse.select.order_clause.trim();
 					attribute_order.add(order_by);
 					table_joined = two_pass_1st_round(table_joined, attribute_order);
 					if (table_joined.getNumOfBlocks() > 10) {table_joined = order_second_pass(table_joined, attribute_order);}
@@ -211,7 +211,7 @@ public class Interpreter {
 					}
 					if (parse.select.order){
 						ArrayList<String> attributes_order = new ArrayList<String>();
-						String order_by = parse.select.o_clause.trim();
+						String order_by = parse.select.order_clause.trim();
 						attributes_order.add(order_by);
 						table_joined = two_pass_1st_round(table_joined, attributes_order);
 						if (table_joined.getNumOfBlocks() > 10) {table_joined = order_second_pass(table_joined, attributes_order);}
@@ -240,7 +240,7 @@ public class Interpreter {
 				}
 				if (parse.select.order == true){
 					ArrayList<String> attributes_order = new ArrayList<>();
-					String order_by = parse.select.o_clause.trim();
+					String order_by = parse.select.order_clause.trim();
 					attributes_order.add(order_by);
 					table_joined = two_pass_1st_round(table_joined, attributes_order);
 					if (table_joined.getNumOfBlocks() > 10) {table_joined = order_second_pass(table_joined, attributes_order);}
@@ -300,7 +300,7 @@ public class Interpreter {
 				ArrayList<Tuple> tuples_tempe = block.getTuples();
 				if (tuples_tempe.size() == 0) continue;
 				for (int k=0; k < tuples_tempe.size(); k++){
-					if (Tree_Selected == null || where_judge(Tree_Selected,tuples_tempe.get(k))){
+					if (Tree_Selected == null || where_decide(Tree_Selected,tuples_tempe.get(k))){
 						if (parse.select.arguments.get(0).equalsIgnoreCase("*")) {appendTupleToRelation(relation_returned,mem,9,tuples_tempe.get(k)); }
 						else {
 							Tuple tuple_returned = relation_returned.createTuple();
@@ -333,7 +333,7 @@ public class Interpreter {
 		}
 		if (parse.select.order){
 			ArrayList<String> attributes_order = new ArrayList<>();
-			String order_by = parse.select.o_clause.trim();
+			String order_by = parse.select.order_clause.trim();
 			attributes_order.add(order_by);
 			relation_returned = two_pass_1st_round(relation_returned, attributes_order);
 			if (relation_returned.getNumOfBlocks() > 10) {relation_returned=order_second_pass(relation_returned, attributes_order);}
@@ -476,48 +476,48 @@ public class Interpreter {
 			heap2.insert(tuple_p2);
 			if (tuple_p1.tuple.getField(attribute).integer > tuple_p2.tuple.getField(attribute).integer){
 				TuplePointer tuple_pointer_temp = heap2.pop_min();
-				if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sublist_pointer).getNumTuples() - 1){
-					Tuple tuple = mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
-					heap2.insert(new TuplePointer(tuple,tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
+				if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sub_pointer).getNumTuples() - 1){
+					Tuple tuple = mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
+					heap2.insert(new TuplePointer(tuple,tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
 				}
-				else if (tuple_pointer_temp.block_pointer < 9 && (tuple_pointer_temp.sublist_pointer - round_counts1)*10 + tuple_pointer_temp.block_pointer<relation2_blocks - 1){
+				else if (tuple_pointer_temp.block_pointer < 9 && (tuple_pointer_temp.sub_pointer - round_counts1)*10 + tuple_pointer_temp.block_pointer<relation2_blocks - 1){
 					tuple_pointer_temp.block_pointer++;
-					relation2.getBlock((tuple_pointer_temp.sublist_pointer - round_counts1) * 10 + tuple_pointer_temp.block_pointer,tuple_pointer_temp.sublist_pointer);
-					heap2.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(0), tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer,0));
+					relation2.getBlock((tuple_pointer_temp.sub_pointer - round_counts1) * 10 + tuple_pointer_temp.block_pointer,tuple_pointer_temp.sub_pointer);
+					heap2.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(0), tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer,0));
 				}
 			}
 			else if (tuple_p1.tuple.getField(attribute).integer < tuple_p2.tuple.getField(attribute).integer){
 				TuplePointer tuple_pointer_temp = heap1.pop_min();
-				if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sublist_pointer).getNumTuples() - 1){
-					Tuple tuple = mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
-					heap1.insert(new TuplePointer(tuple,tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
+				if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sub_pointer).getNumTuples() - 1){
+					Tuple tuple = mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
+					heap1.insert(new TuplePointer(tuple,tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
 				}
-				else if (tuple_pointer_temp.block_pointer < 9 && tuple_pointer_temp.sublist_pointer * 10 + tuple_pointer_temp.block_pointer < relation1_blocks - 1){
+				else if (tuple_pointer_temp.block_pointer < 9 && tuple_pointer_temp.sub_pointer * 10 + tuple_pointer_temp.block_pointer < relation1_blocks - 1){
 					tuple_pointer_temp.block_pointer++;
-					relation1.getBlock(tuple_pointer_temp.sublist_pointer * 10 + tuple_pointer_temp.block_pointer, tuple_pointer_temp.sublist_pointer);
-					heap1.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(0), tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer, 0));
+					relation1.getBlock(tuple_pointer_temp.sub_pointer * 10 + tuple_pointer_temp.block_pointer, tuple_pointer_temp.sub_pointer);
+					heap1.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(0), tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer, 0));
 				}
 			}
 			else {
 				TuplePointer tuple_p1_temp = heap1.pop_min();
 				TuplePointer tuple_p2_temp = heap2.pop_min();
-				if (tuple_p2_temp.tuple_pointer < mem.getBlock(tuple_p2_temp.sublist_pointer).getNumTuples() - 1){
-					Tuple tuple = mem.getBlock(tuple_p2_temp.sublist_pointer).getTuple(tuple_p2_temp.tuple_pointer + 1);
-					heap2.insert(new TuplePointer(tuple,tuple_p2_temp.sublist_pointer, tuple_p2_temp.block_pointer, tuple_p2_temp.tuple_pointer + 1));
+				if (tuple_p2_temp.tuple_pointer < mem.getBlock(tuple_p2_temp.sub_pointer).getNumTuples() - 1){
+					Tuple tuple = mem.getBlock(tuple_p2_temp.sub_pointer).getTuple(tuple_p2_temp.tuple_pointer + 1);
+					heap2.insert(new TuplePointer(tuple,tuple_p2_temp.sub_pointer, tuple_p2_temp.block_pointer, tuple_p2_temp.tuple_pointer + 1));
 				}
-				else if (tuple_p2_temp.block_pointer < 9 && (tuple_p2_temp.sublist_pointer - round_counts1) * 10 + tuple_p2_temp.block_pointer < relation2_blocks - 1){
+				else if (tuple_p2_temp.block_pointer < 9 && (tuple_p2_temp.sub_pointer - round_counts1) * 10 + tuple_p2_temp.block_pointer < relation2_blocks - 1){
 					tuple_p2_temp.block_pointer++;
-					relation2.getBlock((tuple_p2_temp.sublist_pointer-round_counts1) * 10 + tuple_p2_temp.block_pointer, tuple_p2_temp.sublist_pointer);
-					heap2.insert(new TuplePointer(mem.getBlock(tuple_p2_temp.sublist_pointer).getTuple(0), tuple_p2_temp.sublist_pointer, tuple_p2_temp.block_pointer, 0));
+					relation2.getBlock((tuple_p2_temp.sub_pointer -round_counts1) * 10 + tuple_p2_temp.block_pointer, tuple_p2_temp.sub_pointer);
+					heap2.insert(new TuplePointer(mem.getBlock(tuple_p2_temp.sub_pointer).getTuple(0), tuple_p2_temp.sub_pointer, tuple_p2_temp.block_pointer, 0));
 				}
-				if (tuple_p1_temp.tuple_pointer < mem.getBlock(tuple_p1_temp.sublist_pointer).getNumTuples() - 1){
-					Tuple tuple = mem.getBlock(tuple_p1_temp.sublist_pointer).getTuple(tuple_p1_temp.tuple_pointer + 1);
-					heap1.insert(new TuplePointer(tuple, tuple_p1_temp.sublist_pointer, tuple_p1_temp.block_pointer, tuple_p1_temp.tuple_pointer + 1));
+				if (tuple_p1_temp.tuple_pointer < mem.getBlock(tuple_p1_temp.sub_pointer).getNumTuples() - 1){
+					Tuple tuple = mem.getBlock(tuple_p1_temp.sub_pointer).getTuple(tuple_p1_temp.tuple_pointer + 1);
+					heap1.insert(new TuplePointer(tuple, tuple_p1_temp.sub_pointer, tuple_p1_temp.block_pointer, tuple_p1_temp.tuple_pointer + 1));
 				}
-				else if (tuple_p1_temp.block_pointer < 9 && tuple_p1_temp.sublist_pointer * 10 + tuple_p1_temp.block_pointer < relation1_blocks - 1){
+				else if (tuple_p1_temp.block_pointer < 9 && tuple_p1_temp.sub_pointer * 10 + tuple_p1_temp.block_pointer < relation1_blocks - 1){
 					tuple_p1_temp.block_pointer++;
-					relation1.getBlock(tuple_p1_temp.sublist_pointer * 10 + tuple_p1_temp.block_pointer, tuple_p1_temp.sublist_pointer);
-					heap1.insert(new TuplePointer(mem.getBlock(tuple_p1_temp.sublist_pointer).getTuple(0), tuple_p1_temp.sublist_pointer, tuple_p1_temp.block_pointer, 0));
+					relation1.getBlock(tuple_p1_temp.sub_pointer * 10 + tuple_p1_temp.block_pointer, tuple_p1_temp.sub_pointer);
+					heap1.insert(new TuplePointer(mem.getBlock(tuple_p1_temp.sub_pointer).getTuple(0), tuple_p1_temp.sub_pointer, tuple_p1_temp.block_pointer, 0));
 				}
 				Tuple tuple1 = tuple_p1_temp.tuple;
 				Tuple tuple2 = tuple_p2_temp.tuple;
@@ -554,14 +554,14 @@ public class Interpreter {
 					appendTupleToRelation(natural_join_relation, mem,9, new_natural_join_tuple);
 
 					TuplePointer tuple_pointer_temp = new_tuple_pointer1;
-					if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sublist_pointer).getNumTuples() - 1){
-						Tuple tuple = mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
-						heap1.insert(new TuplePointer(tuple, tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
+					if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sub_pointer).getNumTuples() - 1){
+						Tuple tuple = mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
+						heap1.insert(new TuplePointer(tuple, tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
 					}
-					else if (tuple_pointer_temp.block_pointer < 9 && tuple_pointer_temp.sublist_pointer * 10 + tuple_pointer_temp.block_pointer < relation1_blocks - 1){
+					else if (tuple_pointer_temp.block_pointer < 9 && tuple_pointer_temp.sub_pointer * 10 + tuple_pointer_temp.block_pointer < relation1_blocks - 1){
 						tuple_pointer_temp.block_pointer++;
-						relation1.getBlock(tuple_pointer_temp.sublist_pointer * 10 + tuple_pointer_temp.block_pointer, tuple_pointer_temp.sublist_pointer);
-						heap1.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(0), tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer, 0));
+						relation1.getBlock(tuple_pointer_temp.sub_pointer * 10 + tuple_pointer_temp.block_pointer, tuple_pointer_temp.sub_pointer);
+						heap1.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(0), tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer, 0));
 					}
 					if (heap1.size > 0){
 						TuplePointer temp_tp1 = heap1.pop_min();
@@ -584,14 +584,14 @@ public class Interpreter {
 					appendTupleToRelation(natural_join_relation,mem, 9, new_natural_join_tuple);
 
 					TuplePointer tuple_pointer_temp = new_tuple_pointer2;
-					if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sublist_pointer).getNumTuples() - 1){
-						Tuple tuple = mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
-						heap2.insert(new TuplePointer(tuple, tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
+					if (tuple_pointer_temp.tuple_pointer < mem.getBlock(tuple_pointer_temp.sub_pointer).getNumTuples() - 1){
+						Tuple tuple = mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(tuple_pointer_temp.tuple_pointer + 1);
+						heap2.insert(new TuplePointer(tuple, tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer, tuple_pointer_temp.tuple_pointer + 1));
 					}
-					else if (tuple_pointer_temp.block_pointer < 9 && (tuple_pointer_temp.sublist_pointer - round_counts1) * 10 + tuple_pointer_temp.block_pointer < relation2_blocks - 1){
+					else if (tuple_pointer_temp.block_pointer < 9 && (tuple_pointer_temp.sub_pointer - round_counts1) * 10 + tuple_pointer_temp.block_pointer < relation2_blocks - 1){
 						tuple_pointer_temp.block_pointer++;
-						relation2.getBlock((tuple_pointer_temp.sublist_pointer - round_counts1) * 10 + tuple_pointer_temp.block_pointer, tuple_pointer_temp.sublist_pointer);
-						heap2.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sublist_pointer).getTuple(0), tuple_pointer_temp.sublist_pointer, tuple_pointer_temp.block_pointer,0));
+						relation2.getBlock((tuple_pointer_temp.sub_pointer - round_counts1) * 10 + tuple_pointer_temp.block_pointer, tuple_pointer_temp.sub_pointer);
+						heap2.insert(new TuplePointer(mem.getBlock(tuple_pointer_temp.sub_pointer).getTuple(0), tuple_pointer_temp.sub_pointer, tuple_pointer_temp.block_pointer,0));
 					}
 					if (heap2.size>0){
 						TuplePointer temp_tp2 = heap2.pop_min();
@@ -605,223 +605,182 @@ public class Interpreter {
 		return natural_join_name;
 	}
 
-	// 11/27
-	private String join_new(String table1, String table2, boolean last_one, boolean na_join){
-		long r=System.currentTimeMillis();
-		ArrayList<NodeGenerator> clauses=new ArrayList<NodeGenerator>();
-		if (parse.select.where_clause !=null) clauses=parse.select.where_clause.hasSelection();
-		ArrayList<NodeGenerator> suit_clauses=new ArrayList<NodeGenerator>();
-		ArrayList<String> t1_names=new ArrayList<String>();
+	private String join_new(String table1, String table2, boolean last, boolean natural_join){
+		ArrayList<NodeGenerator> clause = new ArrayList<NodeGenerator>();
+		if (parse.select.where_clause != null) clause = parse.select.where_clause.hasSelection();
+		ArrayList<NodeGenerator> meet_clauses = new ArrayList<NodeGenerator>();
+		ArrayList<String> table1_names = new ArrayList<String>();
 		if (table1.contains(","))
 		{
-			String[] t1_names_s=table1.split(",");
-			for (int i=0;i<t1_names_s.length;i++){
-				t1_names.add(t1_names_s[i]);
+			String[] table1_names_s = table1.split(",");
+			for (int i = 0; i < table1_names_s.length; i++){
+				table1_names.add(table1_names_s[i]);
 			}
 		}
-		for (int i=0;i<clauses.size();i++){
-			NodeGenerator test_tree=clauses.get(i);
-			boolean add=false;
-			if (t1_names.size()>0){
-				for (int j=0;j<t1_names.size();j++){
-					if ((test_tree.left.op.contains(t1_names.get(j))&&test_tree.right.op.contains(table2))){
-						add=true;
-					}
+		for (int i = 0; i < clause.size(); i++){
+			NodeGenerator tree = clause.get(i);
+			boolean add_or_not = false;
+			if (table1_names.size() > 0){
+				for (int j = 0; j < table1_names.size(); j++){
+					if ((tree.left.operator.contains(table1_names.get(j)) && tree.right.operator.contains(table2))) {add_or_not = true;}
 				}
 			}
 			else {
-				if (test_tree.left.op.contains(table1)&&test_tree.right.op.contains(table2)){
-					if (test_tree.left.op.contains(table1)&&test_tree.right.op.contains(table2)){
-						String left_op = test_tree.left.op;
-						String right_op = test_tree.right.op;
-						int index_left = left_op.indexOf(".");
-						int index_right = right_op.indexOf(".");
-						if (index_left>0 && index_right>0){
-							String sub_left = left_op.substring(index_left+1,left_op.length());
-							String sub_right = right_op.substring(index_right+1,right_op.length());
-							if (sub_left.equalsIgnoreCase(sub_right) && na_join){
-//	                            to do natural join
-//	                            tables table1 && table2
-//	                            join Attribute
-//	                            System.out.println("I'm in natural join");
-//	                            sub_left.replaceAll("\.", "");
-								return natural_join(table1,table2,sub_left);
-							}
+				if (tree.left.operator.contains(table1) && tree.right.operator.contains(table2)){
+					if (tree.left.operator.contains(table1) && tree.right.operator.contains(table2)){
+						String op_left = tree.left.operator;
+						String op_right = tree.right.operator;
+						int index_left = op_left.indexOf(".");
+						int index_right = op_right.indexOf(".");
+						if (index_left > 0 && index_right > 0){
+							String subtree_left = op_left.substring(index_left+1, op_left.length());
+							String subtree_right = op_right.substring(index_right+1, op_right.length());
+							if (subtree_left.equalsIgnoreCase(subtree_right) && natural_join) {return natural_join(table1,table2,subtree_left);}
 						}
-						add=true;
+						add_or_not = true;
 					}
 				}
 			}
 
-			if (add==true){
-				suit_clauses.add(test_tree);}
+			if (add_or_not == true){meet_clauses.add(tree);}
 		}
-		Relation relation1=schema_manager.getRelation(table1);
-		Relation relation2=schema_manager.getRelation(table2);
-		ArrayList<String> attribute_names_new=new ArrayList<String>();
-		ArrayList<FieldType> new_fieldtypes=relation1.getSchema().getFieldTypes();
-		new_fieldtypes.addAll(relation2.getSchema().getFieldTypes());
-		if (relation1.getSchema().getFieldNames().get(0).contains(".")){
-			attribute_names_new=relation1.getSchema().getFieldNames();
-		}
+
+		Relation relation1 = schema_manager.getRelation(table1);
+		Relation relation2 = schema_manager.getRelation(table2);
+		ArrayList<String> attribute_names_new = new ArrayList<String>();
+		ArrayList<FieldType> fieldtypes_new = relation1.getSchema().getFieldTypes();
+		fieldtypes_new.addAll(relation2.getSchema().getFieldTypes());
+		if (relation1.getSchema().getFieldNames().get(0).contains(".")){attribute_names_new = relation1.getSchema().getFieldNames();}
 		else {
-			for (int i=0;i<relation1.getSchema().getNumOfFields();i++){
-				String name=table1+"."+relation1.getSchema().getFieldNames().get(i);
-				attribute_names_new.add(name);
+			for (int i=0; i < relation1.getSchema().getNumOfFields(); i++){
+				String temp_name = table1 + "." + relation1.getSchema().getFieldNames().get(i);
+				attribute_names_new.add(temp_name);
 			}
 		}
-		if (relation2.getSchema().getFieldNames().get(0).contains(".")){
-			attribute_names_new.addAll(relation2.getSchema().getFieldNames());
-		}
+		if (relation2.getSchema().getFieldNames().get(0).contains(".")){attribute_names_new.addAll(relation2.getSchema().getFieldNames());}
 		else {
-			for (int i=0;i<relation2.getSchema().getNumOfFields();i++){
-				String name=table2+"."+relation2.getSchema().getFieldNames().get(i);
-				attribute_names_new.add(name);
+			for (int i=0; i < relation2.getSchema().getNumOfFields(); i++){
+				String temp_name = table2 + "." + relation2.getSchema().getFieldNames().get(i);
+				attribute_names_new.add(temp_name);
 			}
 		}
-		Schema new_schema=new Schema(attribute_names_new,new_fieldtypes);
-		if (last_one) System.out.println(new_schema);
-		String new_table=table1+","+table2;
-		Relation new_r =schema_manager.createRelation(new_table, new_schema);
-		int t1_blocks=relation1.getNumOfBlocks();
-		int t1_to_mem;
-		if (t1_blocks>Config.NUM_OF_BLOCKS_IN_MEMORY-2) t1_to_mem=Config.NUM_OF_BLOCKS_IN_MEMORY-2;
-		else t1_to_mem=t1_blocks;
-		for (int i=0;i<t1_blocks;i+=t1_to_mem){
-			if (i+t1_to_mem>t1_blocks) t1_to_mem=t1_blocks-i;
-			relation1.getBlocks(i, 0, t1_to_mem);
-			for (int j=0;j<t1_to_mem;j++){
-				long lp=System.currentTimeMillis();
-				Block t1_block=mem.getBlock(j);
-				if (t1_block.isEmpty()) continue;
-				int t2_blocks=relation2.getNumOfBlocks();
-				for (int m=0;m<t2_blocks;m++){
-					relation2.getBlock(m, Config.NUM_OF_BLOCKS_IN_MEMORY-2);
-					Block t2_block=mem.getBlock(Config.NUM_OF_BLOCKS_IN_MEMORY-2);
-					if (t2_block.isEmpty()) continue;
-					for (int k=0;k<t1_block.getNumTuples();k++){
-						Tuple t1_tuple=t1_block.getTuple(k);
-						if (t1_tuple.isNull()) continue;
-						for (int n=0;n<t2_block.getNumTuples();n++){
-							Tuple t2_tuple=t2_block.getTuple(n);
-							if (t2_tuple.isNull()) continue;
-
-
-							Tuple joined_tuple=new_r.createTuple();
-							for (int t=0;t<t1_tuple.getNumOfFields();t++){
-								if (t1_tuple.getField(t).type==FieldType.INT){
-									joined_tuple.setField(t, t1_tuple.getField(t).integer);
+		Schema schema_new = new Schema(attribute_names_new,fieldtypes_new);
+		if (last) System.out.println(schema_new);
+		String table_new = table1 + "," + table2;
+		Relation relation_new = schema_manager.createRelation(table_new, schema_new);
+		int table1_blocks = relation1.getNumOfBlocks();
+		int table1_memory;
+		if (table1_blocks > Config.NUM_OF_BLOCKS_IN_MEMORY - 2) table1_memory = Config.NUM_OF_BLOCKS_IN_MEMORY-2;
+		else table1_memory = table1_blocks;
+		for (int i=0; i < table1_blocks; i += table1_memory){
+			if (i + table1_memory > table1_blocks) table1_memory = table1_blocks - i;
+			relation1.getBlocks(i, 0, table1_memory);
+			for (int j=0;j<table1_memory;j++){
+				Block table1_block = mem.getBlock(j);
+				if (table1_block.isEmpty()) continue;
+				int table2_blocks = relation2.getNumOfBlocks();
+				for (int m = 0;m < table2_blocks; m++){
+					relation2.getBlock(m, Config.NUM_OF_BLOCKS_IN_MEMORY-  2);
+					Block table2_block = mem.getBlock(Config.NUM_OF_BLOCKS_IN_MEMORY - 2);
+					if (table2_block.isEmpty()) continue;
+					for (int k = 0; k < table1_block.getNumTuples();k++){
+						Tuple table1_tuple = table1_block.getTuple(k);
+						if (table1_tuple.isNull()) continue;
+						for (int n = 0; n < table2_block.getNumTuples(); n++){
+							Tuple table2_tuple = table2_block.getTuple(n);
+							if (table2_tuple.isNull()) continue;
+							Tuple tuple_joined = relation_new.createTuple();
+							for (int t = 0; t < table1_tuple.getNumOfFields(); t++){
+								if (table1_tuple.getField(t).type == FieldType.INT) {tuple_joined.setField(t, table1_tuple.getField(t).integer);}
+								else if (table1_tuple.getField(t).type == FieldType.STR20) {tuple_joined.setField(t, table1_tuple.getField(t).str);}
+							}
+							for (int t = table1_tuple.getNumOfFields(); t<tuple_joined.getNumOfFields(); t++){
+								if (table2_tuple.getField(t - table1_tuple.getNumOfFields()).type == FieldType.INT){
+									tuple_joined.setField(t, table2_tuple.getField(t - table1_tuple.getNumOfFields()).integer);
 								}
-								else if (t1_tuple.getField(t).type==FieldType.STR20){
-									joined_tuple.setField(t, t1_tuple.getField(t).str);
+								else if (table2_tuple.getField(t - table1_tuple.getNumOfFields()).type == FieldType.STR20){
+									tuple_joined.setField(t, table2_tuple.getField(t-table1_tuple.getNumOfFields()).str);
 								}
 							}
-							for (int t=t1_tuple.getNumOfFields();t<joined_tuple.getNumOfFields();t++){
-								if (t2_tuple.getField(t-t1_tuple.getNumOfFields()).type==FieldType.INT){
-									joined_tuple.setField(t, t2_tuple.getField(t-t1_tuple.getNumOfFields()).integer);
-								}
-								else if (t2_tuple.getField(t-t1_tuple.getNumOfFields()).type==FieldType.STR20){
-									joined_tuple.setField(t, t2_tuple.getField(t-t1_tuple.getNumOfFields()).str);
-								}
-							}
-							if (suit_clauses.size()==0) {
-								appendTupleToRelation(new_r, mem, Config.NUM_OF_BLOCKS_IN_MEMORY-1, joined_tuple);
+							if (meet_clauses.size() == 0) {
+								appendTupleToRelation(relation_new, mem, Config.NUM_OF_BLOCKS_IN_MEMORY - 1, tuple_joined);
 							}
 							else {
-								int pointer=0;
-								for (int t=0;t<suit_clauses.size();t++){
-									if (where_judge(suit_clauses.get(t),joined_tuple)){
-										pointer++;
-									}
-								}
-								if (pointer==suit_clauses.size()){
-									appendTupleToRelation(new_r, mem, Config.NUM_OF_BLOCKS_IN_MEMORY-1, joined_tuple);
-								}
+								int counter = 0;
+								for (int t = 0; t < meet_clauses.size(); t++){if (where_decide(meet_clauses.get(t), tuple_joined)){counter ++;}}
+								if (counter == meet_clauses.size()){appendTupleToRelation(relation_new, mem, Config.NUM_OF_BLOCKS_IN_MEMORY-1, tuple_joined);}
 							}
 						}
 					}
 				}
 			}
 		}
-		return new_table;
+		return table_new;
 	}
 
-	private boolean where_judge(NodeGenerator ExTree, Tuple test_tuple){
-		if (ExTree==null) return true;
-		if (calculate(ExTree, test_tuple).equalsIgnoreCase("true")) return true;
-		else if (calculate(ExTree, test_tuple).equalsIgnoreCase("null")) System.out.println("Syntax Error!");
+	private boolean where_decide(NodeGenerator tree, Tuple tuple){
+		if (tree == null) {return true;}
+		if (calculator(tree, tuple).equalsIgnoreCase("true")) return true;
+		else if (calculator(tree, tuple).equalsIgnoreCase("null")) System.out.println("Syntax error!!!");
 		return false;
 	}
 
-	private String calculate(NodeGenerator ExTree, Tuple test_tuple){
-		if (ExTree.left == null){
-			return ExTree.op;
-		}
-		if (ExTree.right ==null){
-			return ExTree.op;
-		}
+	private String calculator(NodeGenerator tree, Tuple tuple){
+		if (tree.left == null){return tree.operator;}
+		if (tree.right ==null){return tree.operator;}
 		String left = "false";
 		String right = "false";
-
-		if (ExTree.left != null){
-			left=calculate(ExTree.left, test_tuple);
+		if (tree.left != null) {left= calculator(tree.left, tuple);}
+		if (tree.right != null) {right= calculator(tree.right,tuple);}
+		if (tree.operator.equalsIgnoreCase("&")){
+			if (left.equalsIgnoreCase("true") && right.equalsIgnoreCase("true")) {return "true";}
+			else {return "false";}
 		}
-		if (ExTree.right != null){
-			right=calculate(ExTree.right,test_tuple);
+		else if (tree.operator.equalsIgnoreCase("|")){
+			if (left.equalsIgnoreCase("true")||right.equalsIgnoreCase("true")) {return "true";}
+			else {return "false";}
 		}
-		if (ExTree.op.equalsIgnoreCase("&")){
-			if (left.equalsIgnoreCase("true")&&right.equalsIgnoreCase("true")){
-				return "true";
-			}
-			else return "false";
-		}
-		else if (ExTree.op.equalsIgnoreCase("|")){
-			if (left.equalsIgnoreCase("true")||right.equalsIgnoreCase("true")){
-				return "true";
-			}
-			else return "false";
-		}
-		else if (ExTree.op.equalsIgnoreCase("=")){
+		else if (tree.operator.equalsIgnoreCase("=")){
 			if (Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					if (left.equalsIgnoreCase(right)) return "true";
+					if (left.equalsIgnoreCase(right)) {return "true";}
 					else return "false";}
 				else if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					int lvalue=Integer.parseInt(left);
-					int rvalue=test_tuple.getField(right).integer;
-					if (lvalue==rvalue) return "true";
+					int value_left = Integer.parseInt(left);
+					int value_right = tuple.getField(right).integer;
+					if (value_left == value_right) return "true";
 					else return "false";
 				}
 			}
 			else if (Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					int rvalue=Integer.parseInt(right);
-					int lvalue=test_tuple.getField(left).integer;
-					if (lvalue==rvalue) return "true";
+					int value_right = Integer.parseInt(right);
+					int value_left = tuple.getField(left).integer;
+					if (value_left == value_right) return "true";
 					else return "false";
 				}
 				else if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					if (test_tuple.getSchema().fieldNameExists(right)) {
-						if (test_tuple.getSchema().fieldNameExists(left)){
-							if (test_tuple.getField(left).str!=null){
-								if (test_tuple.getField(right).str.equalsIgnoreCase(test_tuple.getField(left).str)) return "true";
+					if (tuple.getSchema().fieldNameExists(right)) {
+						if (tuple.getSchema().fieldNameExists(left)){
+							if (tuple.getField(left).str != null){
+								if (tuple.getField(right).str.equalsIgnoreCase(tuple.getField(left).str)) return "true";
 								else return "false";
 							}
 							else {
-								if (test_tuple.getField(right).integer==test_tuple.getField(left).integer) return "true";
+								if (tuple.getField(right).integer == tuple.getField(left).integer) return "true";
 								else return "false";
 							}
 						}
 						else {
 							left=left.replaceAll("\"", "");
-							if (test_tuple.getField(right).str.equalsIgnoreCase(left)) return "true";
+							if (tuple.getField(right).str.equalsIgnoreCase(left)) return "true";
 							else return "false";
 						}
 					}
-					else if (!test_tuple.getSchema().fieldNameExists(right)){
-						if (test_tuple.getSchema().fieldNameExists(left)){
+					else if (!tuple.getSchema().fieldNameExists(right)){
+						if (tuple.getSchema().fieldNameExists(left)){
 							right=right.replaceAll("\"", "");
-							if (test_tuple.getField(left).str.equalsIgnoreCase(right)) return "true";
+							if (tuple.getField(left).str.equalsIgnoreCase(right)) return "true";
 							else return "false";
 						}
 						else {
@@ -832,106 +791,106 @@ public class Interpreter {
 				}
 			}
 		}
-		else if (ExTree.op.equalsIgnoreCase("<")){
+		else if (tree.operator.equalsIgnoreCase("<")){
 			if (Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					if (test_tuple.getField(left).integer<test_tuple.getField(right).integer) return "true";
+					if (tuple.getField(left).integer < tuple.getField(right).integer) return "true";
 					else return "false";
 				}
 				else if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					if (test_tuple.getField(left).integer<Integer.parseInt(right)) return "true";
+					if (tuple.getField(left).integer < Integer.parseInt(right)) return "true";
 					else return "false";
 				}
 			}
 			else if (Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					if (Integer.parseInt(left)<test_tuple.getField(right).integer) return "true";
+					if (Integer.parseInt(left) < tuple.getField(right).integer) return "true";
 					else return "false";
 				}
 				else if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					if (Integer.parseInt(left)<Integer.parseInt(right)) return "true";
+					if (Integer.parseInt(left) < Integer.parseInt(right)) return "true";
 					else return "false";
 				}
 			}
 		}
-		else if (ExTree.op.equalsIgnoreCase(">")){
+		else if (tree.operator.equalsIgnoreCase(">")){
 			if (Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					if (test_tuple.getField(left).integer>test_tuple.getField(right).integer) return "true";
+					if (tuple.getField(left).integer > tuple.getField(right).integer) return "true";
 					else return "false";
 				}
 				else if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					if (test_tuple.getField(left).integer>Integer.parseInt(right)) return "true";
+					if (tuple.getField(left).integer > Integer.parseInt(right)) return "true";
 					else return "false";
 				}
 			}
 			else if (Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					if (Integer.parseInt(left)>test_tuple.getField(right).integer) return "true";
+					if (Integer.parseInt(left) > tuple.getField(right).integer) return "true";
 					else return "false";
 				}
 				else if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					if (Integer.parseInt(left)>Integer.parseInt(right)) return "true";
+					if (Integer.parseInt(left) > Integer.parseInt(right)) return "true";
 					else return "false";
 				}
 			}
 		}
-		else if (ExTree.op.equalsIgnoreCase("+")  || ExTree.op.equalsIgnoreCase("-")  || ExTree.op.equalsIgnoreCase("*")  || ExTree.op.equalsIgnoreCase("/")){
+		else if (tree.operator.equalsIgnoreCase("+")  || tree.operator.equalsIgnoreCase("-")  || tree.operator.equalsIgnoreCase("*")  || tree.operator.equalsIgnoreCase("/")){
 			if (Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
 				if (Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-					int temp=0;
-					if (ExTree.op.equalsIgnoreCase("+")){
-						temp=Integer.parseInt(left)+Integer.parseInt(right);}
-					else if (ExTree.op.equalsIgnoreCase("-")){
-						temp=Integer.parseInt(left)-Integer.parseInt(right);}
-					else if (ExTree.op.equalsIgnoreCase("*")){
-						temp=Integer.parseInt(left)*Integer.parseInt(right);}
-					else if (ExTree.op.equalsIgnoreCase("/")){
-						temp=Integer.parseInt(left)/Integer.parseInt(right);}
-					return String.valueOf(temp);	             //如果是左边的是数字，那右边也得是数字或者字符
+					int result = 0;
+					if (tree.operator.equalsIgnoreCase("+")){
+						result = Integer.parseInt(left) + Integer.parseInt(right);}
+					else if (tree.operator.equalsIgnoreCase("-")){
+						result = Integer.parseInt(left) - Integer.parseInt(right);}
+					else if (tree.operator.equalsIgnoreCase("*")){
+						result = Integer.parseInt(left) * Integer.parseInt(right);}
+					else if (tree.operator.equalsIgnoreCase("/")){
+						result = Integer.parseInt(left) / Integer.parseInt(right);}
+					return String.valueOf(result);
 				}
 				else if (Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-					int right_value=test_tuple.getField(right).integer;
-					int temp=0;
-					if (ExTree.op.equalsIgnoreCase("+")){
-						temp=Integer.parseInt(left)+right_value;}
-					else if (ExTree.op.equalsIgnoreCase("-")){
-						temp=Integer.parseInt(left)-right_value;}
-					else if (ExTree.op.equalsIgnoreCase("*")){
-						temp=Integer.parseInt(left)*right_value;}
-					else if (ExTree.op.equalsIgnoreCase("/")){
-						temp=Integer.parseInt(left)/right_value;}
-					return String.valueOf(temp);
+					int value_right = tuple.getField(right).integer;
+					int result = 0;
+					if (tree.operator.equalsIgnoreCase("+")){
+						result = Integer.parseInt(left) + value_right;}
+					else if (tree.operator.equalsIgnoreCase("-")){
+						result = Integer.parseInt(left) - value_right;}
+					else if (tree.operator.equalsIgnoreCase("*")){
+						result = Integer.parseInt(left) * value_right;}
+					else if (tree.operator.equalsIgnoreCase("/")){
+						result = Integer.parseInt(left) / value_right;}
+					return String.valueOf(result);
 				}
 			}
 			else if (Pattern.matches("[0-9]",String.valueOf(right.charAt(0)))){
 				if (Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
-					int left_value=test_tuple.getField(left).integer;
-					int temp=0;
-					if (ExTree.op.equalsIgnoreCase("+")){
-						temp=Integer.parseInt(right)+left_value;}
-					else if (ExTree.op.equalsIgnoreCase("-")){
-						temp=Integer.parseInt(right)-left_value;}
-					else if (ExTree.op.equalsIgnoreCase("*")){
-						temp=Integer.parseInt(right)*left_value;}
-					else if (ExTree.op.equalsIgnoreCase("/")){
-						temp=Integer.parseInt(right)/left_value;}
-					return String.valueOf(temp);
+					int value_left = tuple.getField(left).integer;
+					int result = 0;
+					if (tree.operator.equalsIgnoreCase("+")){
+						result = Integer.parseInt(right) + value_left;}
+					else if (tree.operator.equalsIgnoreCase("-")){
+						result = Integer.parseInt(right) - value_left;}
+					else if (tree.operator.equalsIgnoreCase("*")){
+						result = Integer.parseInt(right) * value_left;}
+					else if (tree.operator.equalsIgnoreCase("/")){
+						result = Integer.parseInt(right) / value_left;}
+					return String.valueOf(result);
 				}
 			}
 			else if (Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))&&Pattern.matches("[^0-9]",String.valueOf(right.charAt(0)))){
-				int left_value=test_tuple.getField(left).integer;
-				int right_value=test_tuple.getField(right).integer;
-				int temp=0;
-				if (ExTree.op.equalsIgnoreCase("+")){
-					temp=right_value+left_value;}
-				else if (ExTree.op.equalsIgnoreCase("-")){
-					temp=right_value-left_value;}
-				else if (ExTree.op.equalsIgnoreCase("*")){
-					temp=right_value*left_value;}
-				else if (ExTree.op.equalsIgnoreCase("/")){
-					temp=right_value/left_value;}
-				return String.valueOf(temp);
+				int value_left=tuple.getField(left).integer;
+				int value_right=tuple.getField(right).integer;
+				int result = 0;
+				if (tree.operator.equalsIgnoreCase("+")){
+					result = value_right + value_left;}
+				else if (tree.operator.equalsIgnoreCase("-")){
+					result = value_right - value_left;}
+				else if (tree.operator.equalsIgnoreCase("*")){
+					result = value_right * value_left;}
+				else if (tree.operator.equalsIgnoreCase("/")){
+					result = value_right / value_left;}
+				return String.valueOf(result);
 			}
 
 		}
@@ -939,190 +898,163 @@ public class Interpreter {
 	}
 
 	private Relation two_pass_1st_round(Relation relation_returned, ArrayList<String> attribute_names){
-//		 if (relation_returned.getSchema().getFieldNames().contains(attribute_names.get(0))){
-//			 return relation_returned;
-//		 }
-		Heap heap=new Heap(80,attribute_names);
-		int num_blocks=relation_returned.getNumOfBlocks();
-		int scan_count=0;
-		if (num_blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0)  scan_count=num_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
-		else scan_count=num_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
-
-		for (int i=0;i<scan_count;i++){
-			if (num_blocks-Config.NUM_OF_BLOCKS_IN_MEMORY*i>=Config.NUM_OF_BLOCKS_IN_MEMORY){
-
-				relation_returned.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, Config.NUM_OF_BLOCKS_IN_MEMORY);
-				for (int j=0;j<Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
-					Block sort_block=mem.getBlock(j);
-					if (sort_block.isEmpty()) {continue;}
-					int d=sort_block.getNumTuples();
-					for (int k=0;k<sort_block.getNumTuples();k++){
-						Tuple sort_tuple=sort_block.getTuple(k);
-						if (sort_tuple.isNull())  {continue;}
-						TuplePointer tp=new TuplePointer(sort_tuple,0,0,0);
-						heap.insert(tp);
+		Heap heap = new Heap(80,attribute_names);
+		int blocks_count = relation_returned.getNumOfBlocks();
+		int scan_count;
+		if (blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY==0)  scan_count = blocks_count/Config.NUM_OF_BLOCKS_IN_MEMORY;
+		else scan_count = blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY+  1;
+		for (int i = 0; i < scan_count; i++){
+			if (blocks_count - Config.NUM_OF_BLOCKS_IN_MEMORY * i >= Config.NUM_OF_BLOCKS_IN_MEMORY){
+				relation_returned.getBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, Config.NUM_OF_BLOCKS_IN_MEMORY);
+				for (int j = 0; j < Config.NUM_OF_BLOCKS_IN_MEMORY; j++){
+					Block block_sorted = mem.getBlock(j);
+					if (block_sorted.isEmpty()) {continue;}
+					for (int k=0;k<block_sorted.getNumTuples();k++){
+						Tuple tuple_sorted = block_sorted.getTuple(k);
+						if (tuple_sorted.isNull())  {continue;}
+						TuplePointer tuple_pointer = new TuplePointer(tuple_sorted,0,0,0);
+						heap.insert(tuple_pointer);
 					}
 				}
-				for (int j=0;j<Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
-					Block sorted_block=mem.getBlock((j));
-					sorted_block.clear();
-					while(!sorted_block.isFull() && heap.size>0){
-						TuplePointer tp= heap.pop_min();
-						sorted_block.appendTuple(tp.tuple);
+				for (int j = 0; j < Config.NUM_OF_BLOCKS_IN_MEMORY; j++){
+					Block block_sorted = mem.getBlock((j));
+					block_sorted.clear();
+					while(!block_sorted.isFull() && heap.size>0){
+						TuplePointer tuple_pointer = heap.pop_min();
+						block_sorted.appendTuple(tuple_pointer.tuple);
 					}
 				}
-				relation_returned.setBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, Config.NUM_OF_BLOCKS_IN_MEMORY);
+				relation_returned.setBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, Config.NUM_OF_BLOCKS_IN_MEMORY);
 			}
 			else {
-				relation_returned.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY);
-				for (int j=0;j<num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
-					Block sort_block=mem.getBlock(j);
-					if (sort_block.isEmpty()) {continue;}
-					for (int k=0;k<sort_block.getNumTuples();k++){
-						Tuple sort_tuple=sort_block.getTuple(k);
-						if (sort_tuple.isNull())  {continue;}
-						TuplePointer tp=new TuplePointer(sort_tuple,0,0,0);
-						heap.insert(tp);
+				relation_returned.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, blocks_count-i*Config.NUM_OF_BLOCKS_IN_MEMORY);
+				for (int j=0;j<blocks_count-i*Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
+					Block block_sorted = mem.getBlock(j);
+					if (block_sorted.isEmpty()) {continue;}
+					for (int k = 0;k < block_sorted.getNumTuples();k++){
+						Tuple tuple_sorted = block_sorted.getTuple(k);
+						if (tuple_sorted.isNull())  {continue;}
+						TuplePointer tuple_pointer = new TuplePointer(tuple_sorted,0,0,0);
+						heap.insert(tuple_pointer);
 					}
 				}
-				for (int j=0;j<num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
-					Block sorted_block=mem.getBlock((j));
-					sorted_block.clear();
-					while(!sorted_block.isFull() && heap.size>0){
-						TuplePointer tp= heap.pop_min();
-						sorted_block.appendTuple(tp.tuple);
+				for (int j=0;j<blocks_count-i*Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
+					Block block_sorted=mem.getBlock((j));
+					block_sorted.clear();
+					while(!block_sorted.isFull() && heap.size>0){
+						TuplePointer tuple_pointer= heap.pop_min();
+						block_sorted.appendTuple(tuple_pointer.tuple);
 					}
 				}
-				relation_returned.setBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY);
+				relation_returned.setBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, blocks_count - i * Config.NUM_OF_BLOCKS_IN_MEMORY);
 			}
 		}
 		return relation_returned;
 	}
 
 	private Relation two_pass_2nd_round(Relation relation_returned, ArrayList<String> attribute_names){
-		Heap heap=new Heap(80,attribute_names);
-		int blocks=relation_returned.getNumOfBlocks();
-		int num_sublists=0;
-		if (blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0)  num_sublists=blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
-		else num_sublists=blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
-		for (int i=0;i<num_sublists;i++){
-			relation_returned.getBlock(i*Config.NUM_OF_BLOCKS_IN_MEMORY, i);
+		Heap heap = new Heap(80,attribute_names);
+		int blocks_count = relation_returned.getNumOfBlocks();
+		int sub_count;
+		if (blocks_count % Config.NUM_OF_BLOCKS_IN_MEMORY == 0) {sub_count=blocks_count/Config.NUM_OF_BLOCKS_IN_MEMORY;}
+		else sub_count = blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY+1;
+		for (int i = 0; i < sub_count; i++){
+			relation_returned.getBlock(i * Config.NUM_OF_BLOCKS_IN_MEMORY, i);
 		}
-		for (int i=0;i<num_sublists;i++){
-			Block tested_block=mem.getBlock(i);
-			Tuple tested_tuple=tested_block.getTuple(0);
-			TuplePointer tested_tuple_p=new TuplePointer(tested_tuple,i,0,0);
-			heap.insert(tested_tuple_p);
+		for (int i = 0; i < sub_count; i++){
+			Block block = mem.getBlock(i);
+			Tuple tuple = block.getTuple(0);
+			TuplePointer tuple_pointer = new TuplePointer(tuple, i, 0, 0);
+			heap.insert(tuple_pointer);
 		}
 		if (schema_manager.relationExists("relation_distinct")){
 			schema_manager.deleteRelation("relation_distinct");
 		}
-		Relation relation_distinct=schema_manager.createRelation("relation_distinct", relation_returned.getSchema());
-		TuplePointer output=heap.pop_min();
-		Tuple output_tuple=output.tuple;
-		heap.insert(output);
+		Relation relation_distinct = schema_manager.createRelation("relation_distinct", relation_returned.getSchema());
+		TuplePointer result = heap.pop_min();
+		Tuple output_tuple = result.tuple;
+		heap.insert(result);
 		appendTupleToRelation(relation_distinct, mem, 9, output_tuple);
-		while(heap.size>0)//second pass of 2 pass
+		while(heap.size>0)
 		{
-			TuplePointer tp = heap.pop_min();
-			if (heap.compare_tuple(tp.tuple, output.tuple) != 0)
+			TuplePointer tuple_pointer = heap.pop_min();
+			if (heap.compare_tuple(tuple_pointer.tuple, result.tuple) != 0)
 			{
-				appendTupleToRelation(relation_distinct, mem, 9, tp.tuple);
-				output = tp;
+				appendTupleToRelation(relation_distinct, mem, 9, tuple_pointer.tuple);
+				result = tuple_pointer;
 			}
-			if (tp.tuple_pointer<mem.getBlock(tp.sublist_pointer).getNumTuples()-1)
+			if (tuple_pointer.tuple_pointer<mem.getBlock(tuple_pointer.sub_pointer).getNumTuples()-1)
 			{
-				Tuple tuple = mem.getBlock(tp.sublist_pointer).getTuple(tp.tuple_pointer+1);
-				heap.insert(new TuplePointer(tuple,tp.sublist_pointer,tp.block_pointer,tp.tuple_pointer+1));
+				Tuple tuple = mem.getBlock(tuple_pointer.sub_pointer).getTuple(tuple_pointer.tuple_pointer+1);
+				heap.insert(new TuplePointer(tuple,tuple_pointer.sub_pointer,tuple_pointer.block_pointer,tuple_pointer.tuple_pointer+1));
 			}
-			else if (tp.block_pointer<9 && tp.sublist_pointer*10+tp.block_pointer<blocks-1){//sublist not exhaust
-				tp.block_pointer++;
-				relation_returned.getBlock(tp.sublist_pointer*10+tp.block_pointer, tp.sublist_pointer);
-				heap.insert(new TuplePointer(mem.getBlock(tp.sublist_pointer).getTuple(0),tp.sublist_pointer,tp.block_pointer,0));
+			else if (tuple_pointer.block_pointer<9 && tuple_pointer.sub_pointer *10+tuple_pointer.block_pointer<blocks_count-1){//sublist not exhaust
+				tuple_pointer.block_pointer++;
+				relation_returned.getBlock(tuple_pointer.sub_pointer *10+tuple_pointer.block_pointer, tuple_pointer.sub_pointer);
+				heap.insert(new TuplePointer(mem.getBlock(tuple_pointer.sub_pointer).getTuple(0),tuple_pointer.sub_pointer,tuple_pointer.block_pointer,0));
 			}
 		}
-
 		return relation_distinct;
-
 	}
 
 	private Relation order_second_pass(Relation relation_returned, ArrayList<String> attributes_order){
-//		 if (relation_returned.getSchema().getFieldNames().contains(attributes_order.get(0))){
-//			 Relation relation_order=schema_manager.createRelation("relation_order", relation_returned.getSchema());
-//			 return relation_returned;
-//		 }
-		Heap heap=new Heap(80,attributes_order);
-		int blocks=relation_returned.getNumOfBlocks();
-		int num_sublists=0;
-		if (blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0)  num_sublists=blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
-		else num_sublists=blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
-		for (int i=0;i<num_sublists;i++){
-			relation_returned.getBlock(i*Config.NUM_OF_BLOCKS_IN_MEMORY, i);
+		Heap heap = new Heap(80, attributes_order);
+		int blocks_count = relation_returned.getNumOfBlocks();
+		int sub_count;
+		if (blocks_count%Config.NUM_OF_BLOCKS_IN_MEMORY==0) {sub_count=blocks_count/Config.NUM_OF_BLOCKS_IN_MEMORY;}
+		else sub_count = blocks_count / Config.NUM_OF_BLOCKS_IN_MEMORY + 1;
+		for (int i = 0; i < sub_count; i++){
+			relation_returned.getBlock(i * Config.NUM_OF_BLOCKS_IN_MEMORY, i);
 		}
-		for (int i=0;i<num_sublists;i++){
-			Block tested_block=mem.getBlock(i);
-			Tuple tested_tuple=tested_block.getTuple(0);
-			TuplePointer tested_tuple_p=new TuplePointer(tested_tuple,i,0,0);
-			heap.insert(tested_tuple_p);
+		for (int i=0;i<sub_count;i++){
+			Block block=mem.getBlock(i);
+			Tuple tuple=block.getTuple(0);
+			TuplePointer tuple_pointer = new TuplePointer(tuple,i,0,0);
+			heap.insert(tuple_pointer);
 		}
-		if (schema_manager.relationExists("relation_order")){
-			schema_manager.deleteRelation("relation_order");
-		}
-		Relation relation_order=schema_manager.createRelation("relation_order", relation_returned.getSchema());
-		TuplePointer output=heap.pop_min();
-		Tuple output_tuple=output.tuple;
-		heap.insert(output);
-		appendTupleToRelation(relation_order, mem, 9, output_tuple);
-		while(heap.size>0)//second pass of 2 pass
+		if (schema_manager.relationExists("relation_order")){schema_manager.deleteRelation("relation_order");}
+		Relation relation_order = schema_manager.createRelation("relation_order", relation_returned.getSchema());
+		TuplePointer tuple_pointer_returned = heap.pop_min();
+		Tuple tuple_returned = tuple_pointer_returned.tuple;
+		heap.insert(tuple_pointer_returned);
+		appendTupleToRelation(relation_order, mem, 9, tuple_returned);
+		while(heap.size>0)
 		{
-			TuplePointer tp = heap.pop_min();
-			appendTupleToRelation(relation_order, mem, 9, tp.tuple);
-			output = tp;
-			if (tp.tuple_pointer<mem.getBlock(tp.sublist_pointer).getNumTuples()-1)
+			TuplePointer tuple_pointer = heap.pop_min();
+			appendTupleToRelation(relation_order, mem, 9, tuple_pointer.tuple);
+			if (tuple_pointer.tuple_pointer<mem.getBlock(tuple_pointer.sub_pointer).getNumTuples() - 1)
 			{
-				Tuple tuple = mem.getBlock(tp.sublist_pointer).getTuple(tp.tuple_pointer+1);
-				heap.insert(new TuplePointer(tuple,tp.sublist_pointer,tp.block_pointer,tp.tuple_pointer+1));
+				Tuple tuple = mem.getBlock(tuple_pointer.sub_pointer).getTuple(tuple_pointer.tuple_pointer + 1);
+				heap.insert(new TuplePointer(tuple,tuple_pointer.sub_pointer,tuple_pointer.block_pointer,tuple_pointer.tuple_pointer + 1));
 			}
-			else if (tp.block_pointer<9 && tp.sublist_pointer*10+tp.block_pointer<blocks-1){//sublist not exhaust
-				tp.block_pointer++;
-				relation_returned.getBlock(tp.sublist_pointer*10+tp.block_pointer, tp.sublist_pointer);
-				heap.insert(new TuplePointer(mem.getBlock(tp.sublist_pointer).getTuple(0),tp.sublist_pointer,tp.block_pointer,0));
+			else if (tuple_pointer.block_pointer < 9 && tuple_pointer.sub_pointer * 10 + tuple_pointer.block_pointer < blocks_count - 1){
+				tuple_pointer.block_pointer++;
+				relation_returned.getBlock(tuple_pointer.sub_pointer *10+tuple_pointer.block_pointer, tuple_pointer.sub_pointer);
+				heap.insert(new TuplePointer(mem.getBlock(tuple_pointer.sub_pointer).getTuple(0),tuple_pointer.sub_pointer,tuple_pointer.block_pointer,0));
 			}
 		}
-
 		return relation_order;
-
-
-
-
 	}
 
-	private static void appendTupleToRelation(Relation relation_reference, MainMemory mem, int memory_block_index, Tuple tuple) {
+	private static void appendTupleToRelation(Relation relation_reference, MainMemory mem, int block_index_mem, Tuple tuple) {
 		Block block_reference;
-		if (relation_reference.getNumOfBlocks()==0) {
-//		      System.out.print("The relation is empty" + "\n");
-//		      System.out.print("Get the handle to the memory block " + memory_block_index + " and clear it" + "\n");
-			block_reference=mem.getBlock(memory_block_index);
-			block_reference.clear(); //clear the block
-			block_reference.appendTuple(tuple); // append the tuple
-//		      System.out.print("Write to the first block of the relation" + "\n");
-			relation_reference.setBlock(relation_reference.getNumOfBlocks(),memory_block_index);
-		} else {
-//		      System.out.print("Read the last block of the relation into memory block 5:" + "\n");
-			relation_reference.getBlock(relation_reference.getNumOfBlocks()-1,memory_block_index);
-			block_reference=mem.getBlock(memory_block_index);
-
+		if (relation_reference.getNumOfBlocks() == 0) {
+			block_reference=mem.getBlock(block_index_mem);
+			block_reference.clear();
+			block_reference.appendTuple(tuple);
+			relation_reference.setBlock(relation_reference.getNumOfBlocks(),block_index_mem);
+		}
+		else {
+			relation_reference.getBlock(relation_reference.getNumOfBlocks()-1,block_index_mem);
+			block_reference=mem.getBlock(block_index_mem);
 			if (block_reference.isFull()) {
-//		        System.out.print("(The block is full: Clear the memory block and append the tuple)" + "\n");
-				block_reference.clear(); //clear the block
-				block_reference.appendTuple(tuple); // append the tuple
-//		        System.out.print("Write to a new block at the end of the relation" + "\n");
-				relation_reference.setBlock(relation_reference.getNumOfBlocks(),memory_block_index); //write back to the relation
-			} else {
-//		        System.out.print("(The block is not full: Append it directly)" + "\n");
-				block_reference.appendTuple(tuple); // append the tuple
-//		        System.out.print("Write to the last block of the relation" + "\n");
-				relation_reference.setBlock(relation_reference.getNumOfBlocks()-1,memory_block_index); //write back to the relation
+				block_reference.clear();
+				block_reference.appendTuple(tuple);
+				relation_reference.setBlock(relation_reference.getNumOfBlocks(),block_index_mem);
+			}
+			else {
+				block_reference.appendTuple(tuple);
+				relation_reference.setBlock(relation_reference.getNumOfBlocks()-1,block_index_mem);
 			}
 		}
 	}

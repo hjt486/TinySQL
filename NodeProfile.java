@@ -7,7 +7,7 @@ public class NodeProfile {
     ArrayList<String> tables;
     NodeGenerator where_clause;
     boolean order;
-    String o_clause;
+    String order_clause;
     ArrayList<String> arguments;
 
     public NodeProfile() {
@@ -15,7 +15,7 @@ public class NodeProfile {
         this.where = false;
         this.where_clause = null;
         this.order = false;
-        this.o_clause = null;
+        this.order_clause = null;
         this.arguments = new ArrayList<>();
         this.tables = new ArrayList<>();
     }
