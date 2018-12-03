@@ -97,7 +97,7 @@ public class Interpreter {
 						}
 					}
 					else {
-						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -99999999999);}
+						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -2147483648);}
 						else {tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));}
 					}
 					field_type_verify = true;
@@ -127,6 +127,7 @@ public class Interpreter {
 				relation_new.getBlock(i,9);
 				relation.setBlock(i + formerBlocks,9);
 			}
+			System.out.println("Selected row(s) is inserted.");
 		}
 	}
 

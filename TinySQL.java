@@ -84,7 +84,7 @@ public class TinySQL {
                             time_begin = System.currentTimeMillis();
                             query = scan.next();
                         }
-                        System.out.println(query);
+
 
                         if (query.equalsIgnoreCase("exit")) {
                             System.out.println("");
