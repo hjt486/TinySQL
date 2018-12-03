@@ -97,7 +97,7 @@ public class Interpreter {
 						}
 					}
 					else {
-						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -21321321);}
+						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -99999999999);}
 						else {tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));}
 					}
 					field_type_verify = true;
