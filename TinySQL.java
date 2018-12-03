@@ -53,6 +53,8 @@ public class TinySQL {
                             }
                             System.out.print("Time consumed: ");
                             System.out.println(System.currentTimeMillis()- time_begin +"ms");
+                            System.out.print("Total Disk I/O consumed: ");
+                            System.out.println(run.disk.getDiskIOs());
                             System.out.println("");
                         }
                     }
@@ -68,6 +70,7 @@ public class TinySQL {
                     System.out.println("Enter \"exit\" to return to main manual.");
                     Interpreter run = new Interpreter();
                     while (true) {
+                        long diskio = run.disk.getDiskIOs();
                         System.out.print("TinySQL>");
                         Scanner scan = new Scanner(System.in);
                         String query = "";
@@ -90,6 +93,12 @@ public class TinySQL {
                             run.execute(query);
                             System.out.print("Time consumed: ");
                             System.out.println(System.currentTimeMillis()- time_begin +"ms");
+                            System.out.print("Disk I/O consumed: ");
+                            long diskio_consumed = run.disk.getDiskIOs() - diskio;
+                            System.out.println(diskio_consumed);
+                            System.out.print("Total Disk I/O consumed: ");
+                            System.out.println(run.disk.getDiskIOs());
+                            System.out.println("");
                         }
                     }
                     break;
