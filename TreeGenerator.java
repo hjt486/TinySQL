@@ -1,7 +1,7 @@
 import java.util.Stack;
 
 public  class TreeGenerator {
-    public static NodeGenerator generate(String query){
+    public static NodeGenerator generator(String query){
         Stack<String> operator = new Stack<>();
         Stack<NodeGenerator> tree = new Stack<>();
         query = query.replaceAll("\\({1}","( ");

@@ -1,0 +1,8 @@
+create table contacts (ID INT, firstname STR20, lastname STR20, phone STR20)
+insert into contacts (ID, firstname, lastname, phone) values (1, "Arly", "Haughin", "303-661-8993")
+insert into contacts (ID, firstname, lastname, phone) values (2, "Tessy", "Spoors", "297-183-8934")
+insert into contacts (ID, firstname, lastname, phone) values (3, "Celinka", "MacNulty", "858-431-2273")
+insert into contacts (ID, firstname, lastname, phone) values (4, "Tanny", "Cloutt", "306-584-4658")
+insert into contacts (ID, firstname, lastname, phone) values (5, "Bendicty", "Callicott", "471-426-2635")
+SELECT * FROM contacts
+SELECT * FROM contacts ORDER BY phone

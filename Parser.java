@@ -1,10 +1,13 @@
-
 import java.util.ArrayList;
+/*
+Jiatai Han & Qifan Li
+11/2018
 
+TinySQL Parser
+*/
 
 public class Parser {
     ArrayList<String> key_word;
-    //String sen;
     ArrayList<Attribute> arg;
     ArrayList<String> words;
     ArrayList<String> table_name;
@@ -14,7 +17,6 @@ public class Parser {
 
     public Parser() {
         key_word = new ArrayList<>();
-        //sen = null;
         arg = new ArrayList<>();
         words = new ArrayList<>();
         table_name = new ArrayList<>();
@@ -25,7 +27,6 @@ public class Parser {
 
     private void reset(){
         key_word = new ArrayList<>();
-        //sen = null;
         arg = new ArrayList<>();
         words = new ArrayList<>();
         table_name = new ArrayList<>();
@@ -39,9 +40,12 @@ public class Parser {
             this.reset();
             str = str.trim();
             str = str.replace("//s{1,}"," ");
+            str = str.replace("\u003B","");
+            str = str.replace("\u005B","");
+            str = str.replace("\u003D","");
             String[] res = str.split(" ");
 
-            if(res[0].equalsIgnoreCase("create")){
+            if (res[0].equalsIgnoreCase("create")){
                 key_word.add("create");
                 if(!res[1].equalsIgnoreCase("table")) {
                     System.out.print("Illegal Input!");
@@ -64,7 +68,6 @@ public class Parser {
                             System.out.print("Wrong argument!");
                             return false;
                         }
-
                         if(field[1].equalsIgnoreCase("str20")){
                             Attribute attribute = new Attribute(field[1],field[0]);
                             arg.add(attribute);
@@ -79,50 +82,49 @@ public class Parser {
                     }
                 }
 
-            }else if(res[0].equalsIgnoreCase("drop")){
+            } else if (res[0].equalsIgnoreCase("drop")){
                 key_word.add("drop");
-                if(!res[1].equalsIgnoreCase("table")){
+                if (!res[1].equalsIgnoreCase("table")){
                     System.out.print("Illegal Input!");
                     return false;
                 }
                 table_name.add(res[2]);
-                if(res.length>3){
+                if (res.length>3){
                     return false;
                 }
-            }
-            else if(res[0].equalsIgnoreCase("insert")){
+            } else if (res[0].equalsIgnoreCase("insert")){
                 key_word.add("insert");
-               if(!res[1].equalsIgnoreCase("into")){
+               if (!res[1].equalsIgnoreCase("into")){
                    return false;
                }
                table_name.add(res[2]);
                int index = -1;
                int s_index = -1;
-               for(int i = 3; i < res.length; i++){
-                   if(res[i].equalsIgnoreCase("values")){
+               for (int i = 3; i < res.length; i++){
+                   if (res[i].equalsIgnoreCase("values")){
                        index = i;
                    }
-                   if(res[i].equalsIgnoreCase("select")){
+                   if (res[i].equalsIgnoreCase("select")){
                        s_index = i;
                    }
                }
 
-               if(index < 0 && s_index < 0){
+               if (index < 0 && s_index < 0){
                    System.out.print("No value!");
                    return false;
                }
 
 
-                if(index > 0) {
+                if (index > 0){
                     StringBuilder sb = new StringBuilder();
                     for(int i = 3; i < index; i++) {
                         sb.append(res[i] + " ");
                     }
                     String temp = sb.toString();
-                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0){
                         String sub = temp.substring(1, temp.indexOf(")"));
                         String[] args = sub.split(",");
-                        for (int j = 0; j < args.length; j++) {
+                        for (int j = 0; j < args.length; j++){
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
                             if (field.length != 1) {
@@ -133,17 +135,17 @@ public class Parser {
                                 arg.add(attribute);
                             }
                         }
-                    }else{
+                    } else {
                         return false;
                     }
 
                     sb = new StringBuilder();
-                    for (int i = index + 1; i < res.length; i++) {
+                    for (int i = index + 1; i < res.length; i++){
                         sb.append(res[i] + " ");
                     }
 
                     temp = sb.toString();
-                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0){
                         String sub = temp.substring(1, temp.indexOf(")"));
                         String[] args = sub.split(",");
                         for (int j = 0; j < args.length; j++) {
@@ -156,7 +158,7 @@ public class Parser {
                                 values.add(field[0]);
                             }
                         }
-                    }else{
+                    } else {
                         return false;
                     }
                 }else if(s_index > 0){
@@ -171,15 +173,15 @@ public class Parser {
                         for(int j = 0; j < args.length; j++) {
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
-                            if(field.length != 1) {
+                            if (field.length != 1) {
                                 System.out.print("Wrong argument!");
                                 return false;
-                            }else{
+                            } else {
                                 Attribute attribute = new Attribute(null, field[0]);
                                 arg.add(attribute);
                             }
                         }
-                    }else{
+                    } else {
                         return false;
                     }
 
@@ -187,7 +189,6 @@ public class Parser {
                     for(int i = s_index;i<res.length;i++){
                         sb.append(res[i]+" ");
                     }
-
                     return selectparse(sb.toString().split(" "));
                 }
 
@@ -209,7 +210,7 @@ public class Parser {
 
                 if(index < 0){
                     index = res.length;
-                }else{
+                } else {
                     delete.where = true;
                 }
 
@@ -228,20 +229,20 @@ public class Parser {
                     for(int i = index + 1; i < res.length; i++){
                         sb.append(res[i]+" ");
                     }
-                    delete.where_clause = TreeGenerator.generate(sb.toString());
+                    delete.where_clause = TreeGenerator.generator(sb.toString());
                 }
 
-            }else if(res[0].equalsIgnoreCase("select")){
+            } else if(res[0].equalsIgnoreCase("select")){
                 return selectparse(res);
 
-            }else {
+            } else {
                 return false;
             }
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return false;
         }
-
         return true;
 
     }
@@ -250,47 +251,47 @@ public class Parser {
         select = new NodeProfile();
         key_word.add("select");
 
-        int f_index = -1;
-        int w_index = -1;
-        int o_index = -1;
-        int d_index = -1;
+        int from_index = -1;
+        int where_index = -1;
+        int order_index = -1;
+        int distinct_index = -1;
 
         for(int i = 1; i < res.length; i++){
             if(res[i].equalsIgnoreCase("distinct")){
-                d_index = i;
+                distinct_index = i;
             }
 
             if(res[i].equalsIgnoreCase("from")){
-                f_index = i;
+                from_index = i;
             }
 
             if(res[i].equalsIgnoreCase("where")){
-                w_index = i;
+                where_index = i;
             }
 
             if(res[i].equalsIgnoreCase("order")){
-                o_index = i;
+                order_index = i;
             }
         }
 
-        if(d_index == 1){
+        if(distinct_index == 1){
             select.distinct = true;
-        }else if(d_index >= 0){
+        }else if(distinct_index >= 0){
             return false;
         }
 
-        if(w_index > 0 && o_index > 0 && w_index > o_index) {
+        if(where_index > 0 && order_index > 0 && where_index > order_index) {
             System.out.print("Illegal syntax! ORDER can not be in front of WHERE!");
             return false;
         }
 
-        if(f_index < 0){
+        if(from_index < 0){
             System.out.print("Missing FROM!");
             return false;
         }
         StringBuilder sb = new StringBuilder();
-        if(d_index > 0){
-            for(int i = 2; i < f_index; i++){
+        if(distinct_index > 0){
+            for(int i = 2; i < from_index; i++){
                 sb.append(res[i]+" ");
             }
             String[]arg_s = sb.toString().split(",");
@@ -306,24 +307,20 @@ public class Parser {
                     arg_s[i] = arg_s[i].trim();
                     select.arguments.add(arg_s[i]);
                 }
-// finished argument
             }
-        }else{
-
-            for(int i = 1; i < f_index; i++){
+        } else {
+            for(int i = 1; i < from_index; i++){
                 sb.append(res[i]+" ");
             }
-            String []arg_s = sb.toString().split(",");
+            String[]arg_s = sb.toString().split(",");
 
             if(arg_s[0].trim().equalsIgnoreCase("*")){
                 if(arg_s.length == 1) {
                     select.arguments.add("*");
-                }
-                else{
+                } else {
                     return false;
                 }
-
-            }else{
+            } else {
                 for(int i = 0; i < arg_s.length; i++){
                     arg_s[i] = arg_s[i].trim();
                     select.arguments.add(arg_s[i]);
@@ -332,9 +329,9 @@ public class Parser {
         }
 
         sb = new StringBuilder();
-        if(w_index > 0){
+        if(where_index > 0){
             select.where = true;
-            for(int i = f_index + 1; i < w_index; i++){
+            for(int i = from_index + 1; i < where_index; i++){
                 sb.append(res[i]+" ");
             }
             String[] tables = sb.toString().split(",");
@@ -344,38 +341,38 @@ public class Parser {
             }
 
             sb = new StringBuilder();
-            if(o_index > 0) {
+            if(order_index > 0) {
                 select.order = true;
-                for(int i = w_index + 1; i < o_index; i++){
+                for(int i = where_index + 1; i < order_index; i++){
                     sb.append(res[i]+" ");
                 }
-                select.where_clause = TreeGenerator.generate(sb.toString());
+                select.where_clause = TreeGenerator.generator(sb.toString());
 
-                if(!res[o_index+1].equalsIgnoreCase("by")){
+                if(!res[order_index+1].equalsIgnoreCase("by")){
                     System.out.print("Wrong ORDER BY!");
                     return false;
                 }
 
                 sb = new StringBuilder();
-                for(int i = o_index+2; i < res.length; i++){
+                for(int i = order_index+2; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
                 select.order_clause = sb.toString();
-            }else{
-                for(int i = w_index + 1; i < res.length; i++){
+            } else {
+                for(int i = where_index + 1; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
-                select.where_clause = TreeGenerator.generate(sb.toString());
+                select.where_clause = TreeGenerator.generator(sb.toString());
             }
-        }else{
-            if(o_index > 0){
-                if(!res[o_index + 1].equalsIgnoreCase("by")){
+        } else {
+            if(order_index > 0){
+                if(!res[order_index + 1].equalsIgnoreCase("by")){
                     System.out.print("Wrong ORDER BY!");
                     return false;
                 }
 
                 select.order = true;
-                for(int i = f_index + 1; i < o_index; i++){
+                for(int i = from_index + 1; i < order_index; i++){
                     sb.append(res[i]+" ");
                 }
                 String[] tables = sb.toString().split(",");
@@ -385,12 +382,12 @@ public class Parser {
                 }
 
                 sb = new StringBuilder();
-                for(int i = o_index + 2; i < res.length; i++){
+                for(int i = order_index + 2; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
                 select.order_clause = sb.toString();
-            }else{
-                for(int i = f_index + 1; i < res.length; i++){
+            } else {
+                for(int i = from_index + 1; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
                 String[] tables = sb.toString().split(",");

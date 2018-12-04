@@ -26,7 +26,7 @@ public class Interpreter {
 	}
 
 	public void execute(String query){
-		if (parse.syntax(query) == true){
+		if (parse.syntax(query)){
 			switch (parse.key_word.get(0).toUpperCase()) {
 				case "CREATE": create(); break;
 				case "DROP": drop(); break;
@@ -80,7 +80,7 @@ public class Interpreter {
 
 	public void insert(){
 		String table_name = parse.table_name.get(0);
-		if (schema_manager.relationExists(table_name) == false) {System.out.println("Table " + table_name + " doesn't exist!");}
+		if (!schema_manager.relationExists(table_name)) {System.out.println("Table " + table_name + " doesn't exist!");}
 		Relation relation = schema_manager.getRelation(table_name);
 		Tuple tuple = relation.createTuple();
 		Schema relation_schema = relation.getSchema();
@@ -97,7 +97,7 @@ public class Interpreter {
 						}
 					}
 					else {
-						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -21321321);}
+						if (parse.values.get(i).equalsIgnoreCase("NULL")) {tuple.setField(parse.arg.get(i).name, -2147483648);}
 						else {tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));}
 					}
 					field_type_verify = true;
@@ -109,7 +109,7 @@ public class Interpreter {
 					break;
 				}
 			}
-			if (field_type_verify == true) {
+			if (field_type_verify) {
 				appendTupleToRelation(relation,mem,2,tuple);
 				System.out.println("A row is inserted.");
 			}
@@ -127,6 +127,7 @@ public class Interpreter {
 				relation_new.getBlock(i,9);
 				relation.setBlock(i + formerBlocks,9);
 			}
+			System.out.println("Selected row(s) is inserted.");
 		}
 	}
 
@@ -176,12 +177,12 @@ public class Interpreter {
 					table_joined = two_pass_1st_round(table_joined, table_joined.getSchema().getFieldNames());
 					table_joined = two_pass_2nd_round(table_joined, table_joined.getSchema().getFieldNames());
 				}
-				if (parse.select.order == true){
+				if (parse.select.order){
 					ArrayList<String> attribute_order = new ArrayList<>();
 					String order_by = parse.select.order_clause.trim();
 					attribute_order.add(order_by);
 					table_joined = two_pass_1st_round(table_joined, attribute_order);
-					if (table_joined.getNumOfBlocks() > 10) {table_joined = order_second_pass(table_joined, attribute_order);}
+					if (table_joined.getNumOfBlocks() > 10) {table_joined = order_two_pass(table_joined, attribute_order);}
 				}
 				return table_joined;
 			}
@@ -210,11 +211,11 @@ public class Interpreter {
 						table_joined = two_pass_2nd_round(table_joined, table_joined.getSchema().getFieldNames());
 					}
 					if (parse.select.order){
-						ArrayList<String> attributes_order = new ArrayList<String>();
+						ArrayList<String> attributes_order = new ArrayList<>();
 						String order_by = parse.select.order_clause.trim();
 						attributes_order.add(order_by);
 						table_joined = two_pass_1st_round(table_joined, attributes_order);
-						if (table_joined.getNumOfBlocks() > 10) {table_joined = order_second_pass(table_joined, attributes_order);}
+						if (table_joined.getNumOfBlocks() > 10) {table_joined = order_two_pass(table_joined, attributes_order);}
 					}
 					return table_joined;}
 				}
@@ -234,16 +235,16 @@ public class Interpreter {
 				table_joined = schema_manager.getRelation(table_previous);
 			}
 			if (parse.select.where_clause == null && parse.select.arguments.get(0).equalsIgnoreCase("*")){
-				if (parse.select.distinct == true){
+				if (parse.select.distinct){
 					table_joined = two_pass_1st_round(table_joined, table_joined.getSchema().getFieldNames());
 					table_joined = two_pass_2nd_round(table_joined, table_joined.getSchema().getFieldNames());
 				}
-				if (parse.select.order == true){
+				if (parse.select.order){
 					ArrayList<String> attributes_order = new ArrayList<>();
 					String order_by = parse.select.order_clause.trim();
 					attributes_order.add(order_by);
 					table_joined = two_pass_1st_round(table_joined, attributes_order);
-					if (table_joined.getNumOfBlocks() > 10) {table_joined = order_second_pass(table_joined, attributes_order);}
+					if (table_joined.getNumOfBlocks() > 10) {table_joined = order_two_pass(table_joined, attributes_order);}
 				}
 				return table_joined;
 			}
@@ -251,8 +252,8 @@ public class Interpreter {
 		Schema schema_returned;
 		Relation relation_returned;
 		if (parse.select.tables.size()>1){
-			ArrayList<String> attribute_names_returned = new ArrayList<String>();
-			ArrayList<FieldType> attribute_types_returned = new ArrayList<FieldType>();
+			ArrayList<String> attribute_names_returned = new ArrayList<>();
+			ArrayList<FieldType> attribute_types_returned = new ArrayList<>();
 			if (parse.select.arguments.get(0).equalsIgnoreCase("*")){
 				attribute_names_returned = table_joined.getSchema().getFieldNames();
 				attribute_types_returned = table_joined.getSchema().getFieldTypes();
@@ -336,7 +337,7 @@ public class Interpreter {
 			String order_by = parse.select.order_clause.trim();
 			attributes_order.add(order_by);
 			relation_returned = two_pass_1st_round(relation_returned, attributes_order);
-			if (relation_returned.getNumOfBlocks() > 10) {relation_returned=order_second_pass(relation_returned, attributes_order);}
+			if (relation_returned.getNumOfBlocks() > 10) {relation_returned= order_two_pass(relation_returned, attributes_order);}
 		}
 		if (parse.select.tables.size()>1) {schema_manager.deleteRelation(table_joined.getRelationName());}
 		return relation_returned;
@@ -427,7 +428,7 @@ public class Interpreter {
 		ArrayList<FieldType> attribute_types = relation1.getSchema().getFieldTypes();
 		ArrayList<FieldType> attribute_types2 = relation2.getSchema().getFieldTypes();
 		attribute_types.addAll(attribute_types2);
-		ArrayList<String> attribute_names_new = new ArrayList<String>();
+		ArrayList<String> attribute_names_new = new ArrayList<>();
 		if (relation1.getSchema().getFieldNames().get(0).contains(".")) {attribute_names_new = relation1.getSchema().getFieldNames();}
 		else {
 			for (int i=0; i < relation1.getSchema().getNumOfFields(); i++){
@@ -642,7 +643,7 @@ public class Interpreter {
 				}
 			}
 
-			if (add_or_not == true){meet_clauses.add(tree);}
+			if (add_or_not){meet_clauses.add(tree);}
 		}
 
 		Relation relation1 = schema_manager.getRelation(table1);
@@ -997,7 +998,7 @@ public class Interpreter {
 		return relation_distinct;
 	}
 
-	private Relation order_second_pass(Relation relation_returned, ArrayList<String> attributes_order){
+	private Relation order_two_pass(Relation relation_returned, ArrayList<String> attributes_order){
 		Heap heap = new Heap(80, attributes_order);
 		int blocks_count = relation_returned.getNumOfBlocks();
 		int sub_count;

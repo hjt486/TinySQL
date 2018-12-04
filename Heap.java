@@ -26,8 +26,8 @@ public class Heap {
     }
 
     public void insert(TuplePointer tuple){
-        heap[size - 1] = tuple;    
         size = size + 1;
+        heap[size - 1] = tuple;
         int index_current = size - 1;
         while(parent(index_current) >= 0 && compare_tuple(heap[index_current].tuple,heap[parent(index_current)].tuple) < 0){
             exchange(index_current, parent(index_current));
@@ -57,30 +57,33 @@ public class Heap {
                         exchange(index_current, index_smaller);
                         index_current = index_smaller;
                     }
-                    else {break;}
-                }
-                else {
+                    else {
+                        break;
+                    }
+                } else {
                     if (compare_tuple(heap[index_current].tuple, heap[index_smaller].tuple) > 0) {
                         exchange(index_current, index_smaller);
                         index_current = index_smaller;
                     }
-                    else {break;}
+                    else {
+                        break;
+                    }
                 }
-            }
-            else {
+            } else {
                 index_smaller = index_smaller -1;
                 if (compare_tuple(heap[index_current].tuple, heap[index_smaller].tuple) > 0) {
                     exchange(index_current, index_smaller);
                     index_current = index_smaller;
+                } else {
+                    break;
                 }
-                else {break;}
             }
         }
         return heap[size];
     }
 
     private boolean isLeaf(int index){
-        if (index >= size/2 && index < size){return true;}
+        if (index >= size / 2 && index < size){return true;}
         else {return false;}
     }
 
@@ -94,28 +97,34 @@ public class Heap {
     private int child_right(int index){return (index + 1) * 2; }
 
     private int parent(int index){
-        if (index == 0){return -1;}
-        else {return (index - 1)/2;}
+        if (index == 0){
+            return -1;
+        } else {
+            return (index - 1)/2;
+        }
     }
 
     public int compare_tuple(Tuple t1, Tuple t2){
         if (fields_to_be_compared.size() == 1){
             Field field1 = t1.getField(fields_to_be_compared.get(0));
             Field field2 = t2.getField(fields_to_be_compared.get(0));
-            if (field1.type == FieldType.INT){return field1.integer - field2.integer;}
-            else {return field1.str.compareTo(field2.str);}
-        }
-        else {
-            for(int i = 0; i < fields_to_be_compared.size(); i++){
+            if (field1.type == FieldType.INT){
+                return field1.integer - field2.integer;
+            } else {
+                return field1.str.compareTo(field2.str);
+            }
+        } else {
+            for (int i = 0; i < fields_to_be_compared.size(); i++){
                 Field field1 = t1.getField(fields_to_be_compared.get(i));
                 Field field2 = t2.getField(fields_to_be_compared.get(i));
                 if (field1.type == FieldType.INT){
                     int res = field1.integer - field2.integer;
                     if (res != 0){return res;}
-                }
-                else {
+                } else {
                     int res =  field1.str.compareTo(field2.str);
-                    if (res != 0){return res;}
+                    if (res != 0){
+                        return res;
+                    }
                 }
             }
             return 0;
