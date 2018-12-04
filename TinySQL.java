@@ -6,6 +6,7 @@ Jiatai Han & Qifan Li
 
 TinySQL Interface
 */
+
 public class TinySQL {
     public static void main(String[] args){
 
@@ -49,9 +50,19 @@ public class TinySQL {
                             Interpreter run = new Interpreter();
                             long time_begin = System.currentTimeMillis();
                             while (scanner.hasNextLine()) {
+                                long time1 = System.currentTimeMillis();
+                                long diskio1 = run.disk.getDiskIOs();
                                 run.execute(scanner.nextLine());
+                                long time2 = System.currentTimeMillis() - time1;
+                                long diskio2 = run.disk.getDiskIOs() - diskio1;
+                                System.out.print("Time consumed: ");
+                                System.out.println(time2 +"ms");
+                                System.out.print("Disk I/O consumed: ");
+                                System.out.println(diskio2);
+                                System.out.println("");
+
                             }
-                            System.out.print("Time consumed: ");
+                            System.out.print("Total Time consumed: ");
                             System.out.println(System.currentTimeMillis()- time_begin +"ms");
                             System.out.print("Total Disk I/O consumed: ");
                             System.out.println(run.disk.getDiskIOs());
@@ -83,7 +94,7 @@ public class TinySQL {
                             time_begin = System.currentTimeMillis();
                             query = scan.next();
                         }
-                        System.out.println(query);
+
 
                         if (query.equalsIgnoreCase("exit")) {
                             System.out.println("");
