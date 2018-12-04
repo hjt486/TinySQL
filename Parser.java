@@ -40,6 +40,9 @@ public class Parser {
             this.reset();
             str = str.trim();
             str = str.replace("//s{1,}"," ");
+            str = str.replace("\u003B","");
+            str = str.replace("\u005B","");
+            str = str.replace("\u003D","");
             String[] res = str.split(" ");
 
             if (res[0].equalsIgnoreCase("create")){
