@@ -226,7 +226,7 @@ public class Parser {
                     for(int i = index + 1; i < res.length; i++){
                         sb.append(res[i]+" ");
                     }
-                    delete.where_clause = TreeGenerator.generate(sb.toString());
+                    delete.where_clause = TreeGenerator.generator(sb.toString());
                 }
 
             } else if(res[0].equalsIgnoreCase("select")){
@@ -343,7 +343,7 @@ public class Parser {
                 for(int i = where_index + 1; i < order_index; i++){
                     sb.append(res[i]+" ");
                 }
-                select.where_clause = TreeGenerator.generate(sb.toString());
+                select.where_clause = TreeGenerator.generator(sb.toString());
 
                 if(!res[order_index+1].equalsIgnoreCase("by")){
                     System.out.print("Wrong ORDER BY!");
@@ -359,7 +359,7 @@ public class Parser {
                 for(int i = where_index + 1; i < res.length; i++){
                     sb.append(res[i]+" ");
                 }
-                select.where_clause = TreeGenerator.generate(sb.toString());
+                select.where_clause = TreeGenerator.generator(sb.toString());
             }
         } else {
             if(order_index > 0){
