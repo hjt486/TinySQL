@@ -50,8 +50,13 @@ public  class TreeGenerator {
 
     private static void word_to_op(String[] words) {
         for(int i = 0; i < words.length; i++){
-            if (words[i].equalsIgnoreCase("and")) {words[i] = "&"; continue;}
-            if (words[i].equalsIgnoreCase("or")) {words[i] = "|"; continue;}
+            if (words[i].equalsIgnoreCase("and")) {
+                words[i] = "&";
+                continue;
+            }
+            if (words[i].equalsIgnoreCase("or")) {
+                words[i] = "|";
+            }
         }
     }
 
